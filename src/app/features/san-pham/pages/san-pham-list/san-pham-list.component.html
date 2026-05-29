@@ -1,0 +1,215 @@
+<div class="max-w-[1600px] mx-auto pb-6">
+    <div class="flex justify-between items-end mb-5">
+        <div>
+            <nav class="flex text-slate-400 font-medium text-[10px] mb-1 uppercase tracking-widest">
+                <span>Sản phẩm</span>
+                <span class="mx-2">/</span>
+                <span class="text-primary font-bold">Tất cả sản phẩm</span>
+            </nav>
+            <h2 class="text-lg font-bold text-slate-900 tracking-tight">Danh sách sản phẩm</h2>
+        </div>
+
+        <a routerLink="/admin/san-pham/create"
+            class="flex items-center gap-1.5 bg-primary text-white h-9 px-4 rounded-lg hover:brightness-110 transition-all font-semibold text-xs shadow-sm active:scale-95 cursor-pointer">
+            <span class="material-symbols-outlined text-base">add</span>
+            Thêm sản phẩm mới
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+        <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Tổng sản phẩm</p>
+            <div class="flex justify-between items-end">
+                <span class="text-lg font-black text-slate-800 tracking-tight">{{ totalProducts }}</span>
+                <span class="text-[10px] text-primary bg-blue-50 px-2 py-0.5 rounded font-bold">All</span>
+            </div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Đang kinh doanh</p>
+            <div class="flex justify-between items-end">
+                <span class="text-lg font-black text-slate-800 tracking-tight">{{ activeProducts }}</span>
+                <span class="material-symbols-outlined text-emerald-500 text-xl">check_circle</span>
+            </div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Hết hàng</p>
+            <div class="flex justify-between items-end">
+                <span class="text-lg font-black text-slate-800 tracking-tight">{{ outOfStockProducts }}</span>
+                <span class="text-[10px] text-rose-600 bg-rose-50 px-2 py-0.5 rounded font-black">Chú ý</span>
+            </div>
+        </div>
+        
+        <a routerLink="/admin/san-pham/loai-sp" class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:border-primary/40 transition-all block group">
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5 group-hover:text-primary transition-colors">Danh mục</p>
+            <div class="flex justify-between items-end">
+                <span class="text-xl font-black text-slate-800 tracking-tight group-hover:text-primary transition-colors">{{ categoryCount }}</span>
+                <span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors text-xl">category</span>
+            </div>
+        </a>
+    </div>
+
+    <div class="bg-white p-4 rounded-t-xl border border-slate-100 flex flex-wrap gap-4 items-center justify-between shadow-sm">
+        <div class="flex flex-1 min-w-[260px] gap-3 items-center">
+            <div class="relative flex-1">
+                <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()"
+                    class="w-full pl-8 pr-3 h-8 border border-slate-200 rounded-lg text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-slate-50/50 text-slate-700"
+                    placeholder="Tìm tên sản phẩm hoặc mã SP..." />
+            </div>
+            <div class="flex gap-2">
+                <select [(ngModel)]="selectedCategory" (ngModelChange)="applyFilters()"
+                    class="h-8 pl-2 pr-7 border border-slate-200 rounded-lg text-xs text-slate-600 focus:border-primary bg-white cursor-pointer min-w-[130px]">
+                    <option value="">Tất cả danh mục</option>
+                    @for (cat of categories; track cat) {
+                        <option [value]="cat">{{ cat }}</option>
+                    }
+                </select>
+
+                <select [(ngModel)]="selectedStatus" (ngModelChange)="applyFilters()"
+                    class="h-8 pl-2 pr-7 border border-slate-200 rounded-lg text-xs text-slate-600 focus:border-primary bg-white cursor-pointer min-w-[130px]">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="Đang bán">Đang bán</option>
+                    <option value="Hết hàng">Hết hàng</option>
+                    <option value="Ngừng kinh doanh">Ngừng kinh doanh</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/60">
+            <button (click)="toggleView('table')" [ngClass]="viewMode === 'table' ? 'bg-white text-primary shadow-sm font-bold' : 'text-slate-500 hover:bg-slate-200'" class="p-1 rounded cursor-pointer transition-all flex items-center justify-center">
+                <span class="material-symbols-outlined text-sm px-1">view_list</span>
+            </button>
+            <button (click)="toggleView('grid')" [ngClass]="viewMode === 'grid' ? 'bg-white text-primary shadow-sm font-bold' : 'text-slate-500 hover:bg-slate-200'" class="p-1 rounded cursor-pointer transition-all flex items-center justify-center">
+                <span class="material-symbols-outlined text-sm px-1">grid_view</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="bg-white border-x border-slate-100 shadow-sm min-h-[300px]">
+        @if (isLoading) {
+            <div class="flex justify-center items-center h-44">
+                <span class="material-symbols-outlined animate-spin text-2xl text-primary">progress_activity</span>
+            </div>
+        } @else {
+            
+            @if (viewMode === 'table') {
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse whitespace-nowrap">
+                        <thead class="bg-slate-50/70 text-[10px] text-slate-400 font-black uppercase tracking-wider border-b border-slate-100">
+                            <tr>
+                                <th class="px-5 py-3 w-16 text-center">Hình ảnh</th>
+                                <th class="px-5 py-3">Tên sản phẩm</th>
+                                <th class="px-5 py-3">Mã SP</th>
+                                <th class="px-5 py-3">Danh mục</th>
+                                <th class="px-5 py-3 text-right">Giá bán</th>
+                                <th class="px-5 py-3 text-center">Tồn kho</th>
+                                <th class="px-5 py-3">Trạng thái</th>
+                                <th class="px-5 py-3 text-right">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-xs text-slate-600">
+                            @for (item of paginatedProducts; track item.maSp) {
+                                <tr class="hover:bg-slate-50/40 transition-colors group">
+                                    <td class="px-5 py-2.5 flex justify-center">
+                                        <div class="w-8 h-8 rounded border border-slate-200 overflow-hidden flex justify-center items-center bg-slate-50">
+                                            @if (item.hinhAnh) {
+                                                <img [src]="item.hinhAnh" class="w-full h-full object-cover" />
+                                            } @else {
+                                                <span class="material-symbols-outlined text-slate-300 text-sm">image</span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="px-5 py-2.5">
+                                        <p class="font-semibold text-slate-800 text-[13px]">{{ item.tenSp }}</p>
+                                    </td>
+                                    <td class="px-5 py-2.5 font-medium text-slate-400">{{ item.maSp }}</td>
+                                    <td class="px-5 py-2.5">
+                                        <span class="text-[10px] bg-blue-50 text-primary px-2 py-0.5 rounded font-medium">{{ item.tenLoaiSp }}</span>
+                                    </td>
+                                    <td class="px-5 py-2.5 text-right font-black text-slate-800">{{ item.giaSp | number:'1.0-0' }}đ</td>
+                                    <td class="px-5 py-2.5 text-center font-semibold">0</td>
+                                    <td class="px-5 py-2.5">
+                                        <span [ngClass]="item.trangThai === 'Đang bán' ? 'bg-emerald-50 text-emerald-700' : (item.trangThai === 'Hết hàng' ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-500')" class="px-2 py-0.5 rounded text-[10px] font-medium inline-block">
+                                            {{ item.trangThai }}
+                                        </span>
+                                    </td>
+                                    <td class="px-5 py-2.5 text-right">
+                                        <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <a [routerLink]="['/admin/san-pham/update', item.maSp]" class="p-1 hover:bg-slate-100 text-primary rounded transition-all cursor-pointer"><span class="material-symbols-outlined text-base">edit</span></a>
+                                            <button (click)="deleteProduct(item.maSp, item.tenSp)" class="p-1 hover:bg-rose-50 text-error rounded transition-all cursor-pointer"><span class="material-symbols-outlined text-base">delete</span></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (viewMode === 'grid') {
+                <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in duration-300">
+                    @for (item of paginatedProducts; track item.maSp) {
+                        <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm hover:-translate-y-0.5 hover:shadow transition-all duration-200 flex flex-col justify-between group">
+                            <div>
+                                <div class="w-full h-32 rounded-lg bg-slate-50 border border-slate-200/60 overflow-hidden flex items-center justify-center mb-3">
+                                    @if (item.hinhAnh) {
+                                        <img [src]="item.hinhAnh" [alt]="item.tenSp" class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300" />
+                                    } @else {
+                                        <span class="material-symbols-outlined text-slate-300 text-3xl">image</span>
+                                    }
+                                </div>
+                                
+                                <div class="flex justify-between items-start gap-2 mb-1">
+                                    <h4 class="text-xs font-bold text-slate-800 truncate" [title]="item.tenSp">{{ item.tenSp }}</h4>
+                                    <span [ngClass]="item.trangThai === 'Đang bán' ? 'bg-emerald-50 text-emerald-700' : (item.trangThai === 'Hết hàng' ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-500')" class="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">
+                                        {{ item.trangThai }}
+                                    </span>
+                                </div>
+                                <p class="text-[10px] text-slate-400 font-mono mb-2">Mã: {{ item.maSp }} | Nhóm: {{ item.tenLoaiSp }}</p>
+                            </div>
+
+                            <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
+                                <span class="text-xs font-black text-primary">{{ item.giaSp | number:'1.0-0' }}đ</span>
+                                <div class="flex gap-0.5">
+                                    <a [routerLink]="['/admin/san-pham/update', item.maSp]" class="p-1 bg-slate-50 text-slate-500 rounded hover:bg-blue-50 hover:text-primary transition-all"><span class="material-symbols-outlined text-sm flex">edit</span></a>
+                                    <button (click)="deleteProduct(item.maSp, item.tenSp)" class="p-1 bg-slate-50 text-slate-500 rounded hover:bg-rose-50 hover:text-error transition-all cursor-pointer"><span class="material-symbols-outlined text-sm flex">delete</span></button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (filteredProducts.length === 0 && !isLoading) {
+                <div class="flex flex-col items-center justify-center py-16 text-slate-400 gap-1.5">
+                    <span class="material-symbols-outlined text-3xl text-slate-300">search_off</span>
+                    <p class="text-xs font-bold">Không tìm thấy sản phẩm nào phù hợp.</p>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="bg-white p-4 rounded-b-xl border border-slate-100 flex justify-between items-center shadow-sm text-xs font-medium text-slate-500">
+        <p>
+            Hiển thị
+            <span class="font-bold text-slate-800">{{ filteredProducts.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1 }}</span>
+            -
+            <span class="font-bold text-slate-800">{{ math.min(currentPage * itemsPerPage, filteredProducts.length) }}</span>
+            trong số <span class="font-bold text-slate-800">{{ filteredProducts.length }}</span> sản phẩm
+        </p>
+
+        <div class="flex items-center gap-1">
+            <button class="w-7 h-7 flex items-center justify-center rounded border border-slate-200 hover:bg-slate-50 transition-all text-slate-600 disabled:opacity-30 cursor-pointer bg-white" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+                <span class="material-symbols-outlined text-base">chevron_left</span>
+            </button>
+            @for (page of getPagesArray(); track page) {
+                <button class="w-7 h-7 flex items-center justify-center rounded transition-all cursor-pointer text-xs" [ngClass]="page === currentPage ? 'bg-primary text-white font-bold' : 'border border-transparent text-slate-500 hover:bg-slate-50'" (click)="changePage(page)">
+                    {{ page }}
+                </button>
+            }
+            <button class="w-7 h-7 flex items-center justify-center rounded border border-slate-200 hover:bg-slate-50 transition-all text-slate-600 disabled:opacity-30 cursor-pointer bg-white" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+                <span class="material-symbols-outlined text-base">chevron_right</span>
+            </button>
+        </div>
+    </div>
+</div>

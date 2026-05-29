@@ -1,0 +1,177 @@
+<div class="pb-8 relative h-full">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4">
+        <div>
+            <h2 class="text-xl font-bold text-slate-950 tracking-tight">Danh sách Khách hàng</h2>
+        </div>
+        <div class="flex gap-3 w-full sm:w-auto">
+            <div class="relative flex-1 sm:w-64">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                <input [(ngModel)]="searchTerm" (ngModelChange)="applyFilter()" type="text" class="w-full pl-9 pr-4 py-1.5 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm text-slate-700" placeholder="Tìm tên, SĐT, mã KH...">
+            </div>
+            <button routerLink="/admin/khach-hang/create" class="flex items-center justify-center gap-1.5 bg-primary text-white h-8 px-4 rounded-lg hover:brightness-110 transition-all font-semibold text-xs active:scale-95 whitespace-nowrap shadow-sm">
+                <span class="material-symbols-outlined text-sm">person_add</span>
+                <span>Thêm mới</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-5">
+        <div class="md:col-span-8 bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
+            <div>
+                <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">TỔNG KHÁCH HÀNG (HỆ THỐNG)</p>
+                <h3 class="text-xl font-black text-slate-800 tracking-tight">{{ totalCustomers | number }}</h3>
+                <div class="flex items-center gap-1 mt-1 text-emerald-600">
+                    <span class="material-symbols-outlined text-xs">trending_up</span>
+                    <span class="text-[11px] font-medium">+{{ newCustomersThisMonth }} khách hàng đăng ký trong tháng này</span>
+                </div>
+            </div>
+            <div class="h-12 w-28 bg-blue-50/50 rounded-lg flex items-end justify-around px-2 pb-1 gap-1">
+                <div class="bg-blue-200 w-2.5 h-[40%] rounded-t-sm"></div>
+                <div class="bg-blue-200 w-2.5 h-[60%] rounded-t-sm"></div>
+                <div class="bg-blue-300 w-2.5 h-[50%] rounded-t-sm"></div>
+                <div class="bg-blue-400 w-2.5 h-[80%] rounded-t-sm"></div>
+                <div class="bg-primary w-2.5 h-[100%] rounded-t-sm"></div>
+            </div>
+        </div>
+        
+        <div class="md:col-span-4 bg-blue-600 text-white p-4 rounded-xl border border-blue-700 shadow-sm flex flex-col justify-between">
+            <div class="flex justify-between items-start">
+                <p class="text-[11px] font-semibold opacity-90 uppercase tracking-wider">Khách hàng VIP (&ge;500 pts)</p>
+                <span class="material-symbols-outlined text-sm font-variation-fill">grade</span>
+            </div>
+            <div class="mt-2">
+                <h3 class="text-xl font-black tracking-tight">{{ vipCustomersCount | number }}</h3>
+                <p class="text-[11px] opacity-75 mt-0.5">Chiếm {{ totalCustomers ? ((vipCustomersCount/totalCustomers)*100).toFixed(1) : 0 }}% tổng số lượng</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white p-4 rounded-t-xl border border-slate-100 shadow-sm flex flex-wrap gap-4 items-center justify-between text-xs text-slate-500 font-medium">
+        <div class="flex flex-wrap gap-4 items-center w-full lg:w-auto">
+            <div class="flex flex-col">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Hạng điểm tích luỹ</span>
+                <select [(ngModel)]="filterPoints" (ngModelChange)="applyFilter()" class="border border-slate-200 rounded-lg h-8 px-2 focus:border-primary bg-white cursor-pointer text-slate-600 min-w-[120px] outline-none">
+                    <option value="Tất cả">Tất cả hạng</option>
+                    <option value="VIP">Thành viên VIP (&ge;500 pts)</option>
+                    <option value="Thường">Thành viên Thường (&lt;500 pts)</option>
+                </select>
+            </div>
+
+            <div class="flex flex-col">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Lọc chính xác ngày</span>
+                <input [(ngModel)]="selectedDate" (ngModelChange)="applyFilter()" type="date" class="border border-slate-200 rounded-lg h-8 px-2 focus:border-primary bg-white text-slate-600 cursor-pointer outline-none" />
+            </div>
+
+            <div class="flex flex-col">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Thời gian tạo (Từ ngày)</span>
+                <input [(ngModel)]="startDate" (ngModelChange)="applyFilter()" type="date" class="border border-slate-200 rounded-lg h-8 px-2 focus:border-primary bg-white text-slate-600 cursor-pointer outline-none" />
+            </div>
+            <div class="flex flex-col">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Thời gian tạo (Đến ngày)</span>
+                <input [(ngModel)]="endDate" (ngModelChange)="applyFilter()" type="date" class="border border-slate-200 rounded-lg h-8 px-2 focus:border-primary bg-white text-slate-600 cursor-pointer outline-none" />
+            </div>
+        </div>
+
+        <div class="flex gap-2 w-full lg:w-auto justify-end pt-4 lg:pt-0">
+            <button (click)="searchTerm=''; selectedDate=''; startDate=''; endDate=''; filterPoints='Tất cả'; applyFilter()" class="h-8 px-3 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 font-semibold transition-all cursor-pointer flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">filter_alt_off</span> Xoá bộ lọc
+            </button>
+        </div>
+    </div>
+
+    <div class="bg-white border-x border-slate-100 shadow-sm min-h-[300px]">
+        <div class="overflow-x-auto">
+            @if (isLoading) {
+                <div class="flex justify-center items-center py-20">
+                    <span class="material-symbols-outlined animate-spin text-2xl text-primary">progress_activity</span>
+                </div>
+            } @else {
+                <table class="w-full text-left border-collapse whitespace-nowrap">
+                    <thead class="bg-slate-50/70 text-[10px] text-slate-400 font-black uppercase tracking-wider border-b border-slate-100">
+                        <tr>
+                            <th class="px-5 py-3 w-20 text-center">Mã KH</th>
+                            <th class="px-5 py-3">Họ và Tên</th>
+                            <th class="px-5 py-3">Số điện thoại</th>
+                            <th class="px-5 py-3">Điểm tích lũy</th>
+                            <th class="px-5 py-3">Ngày tham gia</th>
+                            <th class="px-5 py-3 text-right w-24">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-xs text-slate-600">
+                        @for (cus of paginatedCustomers; track cus.maKH) {
+                            <tr class="hover:bg-slate-50/40 transition-colors group">
+                                <td class="px-5 py-2.5 text-center font-mono font-bold text-primary">{{ cus.maKH }}</td>
+                                <td class="px-5 py-2.5">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold"
+                                             [ngClass]="(cus.tenKH ? cus.tenKH.length : 0) % 2 === 0 ? 'bg-blue-50 text-primary' : 'bg-amber-50 text-amber-700'">
+                                            {{ getAvatarInitials(cus.tenKH, cus.sdtkh) }}
+                                        </div>
+                                        <span class="font-semibold text-slate-800 text-[13px]">
+                                            {{ cus.tenKH === 'Khách vãng lai' && cus.sdtkh ? 'Khách ' + cus.sdtkh : (cus.tenKH || 'Khách vãng lai') }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-2.5 font-medium text-slate-400">{{ cus.sdtkh || '---' }}</td>
+                                <td class="px-5 py-2.5">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold"
+                                          [ngClass]="cus.diemTichLuy >= 500 ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'">
+                                        @if (cus.diemTichLuy >= 500) {
+                                            <span class="material-symbols-outlined text-[10px] mr-0.5 font-variation-fill">grade</span>
+                                        }
+                                        {{ cus.diemTichLuy | number }} pts
+                                    </span>
+                                </td>
+                                <td class="px-5 py-2.5 font-medium text-slate-400">
+                                    {{ (cus.ngayTao | date:'dd/MM/yyyy HH:mm') || '---' }}
+                                </td>
+                                <td class="px-5 py-2.5 text-right">
+                                    <div class="flex justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button [routerLink]="['/admin/khach-hang/update', cus.maKH]" class="p-1 hover:bg-slate-100 text-primary rounded transition-all cursor-pointer border-none bg-transparent" title="Chỉnh sửa">
+                                            <span class="material-symbols-outlined text-base">edit</span>
+                                        </button>
+                                        <button (click)="deleteCustomer(cus)" class="p-1 hover:bg-rose-50 text-error rounded transition-all cursor-pointer border-none bg-transparent" title="Xóa">
+                                            <span class="material-symbols-outlined text-base">delete</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        
+                        @if (paginatedCustomers.length === 0) {
+                            <tr>
+                                <td colspan="6" class="text-center py-10 text-slate-400 font-medium">
+                                    <span class="material-symbols-outlined text-xl block mb-1 text-slate-300">search_off</span>
+                                    Không tìm thấy dữ liệu khách hàng nào phù hợp với bộ lọc.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+
+        <div class="bg-white px-5 py-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium">
+            <p>
+                Hiển thị {{ filteredCustomers.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1 }} - 
+                {{ math.min(currentPage * itemsPerPage, filteredCustomers.length) }} trong tổng số <span class="font-bold text-slate-800">{{ filteredCustomers.length }}</span> khách hàng
+            </p>
+            <div class="flex items-center gap-1">
+                <button [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)" class="w-7 h-7 flex items-center justify-center border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-30 transition-all cursor-pointer bg-white">
+                    <span class="material-symbols-outlined text-base">chevron_left</span>
+                </button>
+                
+                @for (page of getPagesArray(); track page) {
+                    <button (click)="changePage(page)" class="w-7 h-7 flex items-center justify-center rounded-lg border transition-all text-xs font-semibold cursor-pointer"
+                            [ngClass]="page === currentPage ? 'bg-primary text-white border-primary shadow-sm font-bold' : 'border-transparent text-slate-500 hover:bg-slate-50'">
+                        {{ page }}
+                    </button>
+                }
+
+                <button [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)" class="w-7 h-7 flex items-center justify-center border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-30 transition-all cursor-pointer bg-white">
+                    <span class="material-symbols-outlined text-base">chevron_right</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

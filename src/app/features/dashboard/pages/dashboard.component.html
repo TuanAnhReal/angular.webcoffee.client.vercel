@@ -1,0 +1,268 @@
+<div class="max-w-[1600px] mx-auto pb-6 text-slate-700 animate-in fade-in duration-200">
+  
+  <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5 border-b border-slate-100 pb-4">
+    <div>
+      <h2 class="text-base font-black text-slate-900 tracking-tight">Tổng quan hệ thống</h2>
+      <p class="text-xs text-slate-400">Theo dõi hoạt động kinh doanh và luồng dòng tiền quán hôm nay</p>
+    </div>
+    
+    <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+      <div class="flex items-center gap-1.5 bg-slate-100 px-2.5 h-8 rounded-lg border border-slate-200/60 text-[11px] font-semibold text-slate-600">
+        <span class="material-symbols-outlined text-sm text-slate-400">calendar_today</span>
+        <span>Hôm nay: {{ 1774810560000 | date:'dd/MM/yyyy' }}</span>
+      </div>
+      
+      <button (click)="loadDashboardSummary()" class="flex items-center gap-1 h-8 px-3 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50 active:scale-95 transition-all shadow-sm cursor-pointer">
+        <span class="material-symbols-outlined text-sm">refresh</span>
+        <span>Làm mới</span>
+      </button>
+    </div>
+  </header>
+
+  @if (summaryData) {
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:-translate-y-0.5 transition-all duration-200">
+        <div class="flex justify-between items-start mb-2.5">
+          <div class="w-8 h-8 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-lg">analytics</span>
+          </div>
+          <div [ngClass]="summaryData.phanTramDoanhThu >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'"
+            class="text-[11px] font-bold flex items-center gap-0.5 px-2 py-0.5 rounded-full">
+            {{ summaryData.phanTramDoanhThu >= 0 ? '+' : '' }}{{ summaryData.phanTramDoanhThu }}%
+            <span class="material-symbols-outlined text-xs">
+              {{ summaryData.phanTramDoanhThu >= 0 ? 'trending_up' : 'trending_down' }}
+            </span>
+          </div>
+        </div>
+        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Doanh Thu Hôm Nay</h4>
+        <h3 class="text-lg font-black text-slate-800 tracking-tight">{{ summaryData.doanhThuHomNay | number:'1.0-0' }}đ</h3>
+        <p class="text-[10px] text-slate-400 mt-1">So với ngày hôm qua</p>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:-translate-y-0.5 transition-all duration-200">
+        <div class="flex justify-between items-start mb-2.5">
+          <div class="w-8 h-8 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-lg">receipt_long</span>
+          </div>
+          <div [ngClass]="summaryData.phanTramDonHang >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'"
+            class="text-[11px] font-bold flex items-center gap-0.5 px-2 py-0.5 rounded-full">
+            {{ summaryData.phanTramDonHang >= 0 ? '+' : '' }}{{ summaryData.phanTramDonHang }}%
+            <span class="material-symbols-outlined text-xs">
+              {{ summaryData.phanTramDonHang >= 0 ? 'trending_up' : 'trending_down' }}
+            </span>
+          </div>
+        </div>
+        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Đơn Hàng Hôm Nay</h4>
+        <h3 class="text-lg font-black text-slate-800 tracking-tight">{{ summaryData.tongDonHangHomNay | number }} đơn</h3>
+        <p class="text-[10px] text-slate-400 mt-1">So với ngày hôm qua</p>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:-translate-y-0.5 transition-all duration-200">
+        <div class="flex justify-between items-start mb-2.5">
+          <div class="w-8 h-8 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-lg">person_add</span>
+          </div>
+          <div [ngClass]="summaryData.phanTramKhachHang >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'"
+            class="text-[11px] font-bold flex items-center gap-0.5 px-2 py-0.5 rounded-full">
+            {{ summaryData.phanTramKhachHang >= 0 ? '+' : '' }}{{ summaryData.phanTramKhachHang }}%
+            <span class="material-symbols-outlined text-xs">
+              {{ summaryData.phanTramKhachHang >= 0 ? 'trending_up' : 'trending_down' }}
+            </span>
+          </div>
+        </div>
+        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Khách Hàng Mới</h4>
+        <h3 class="text-lg font-black text-slate-800 tracking-tight">{{ summaryData.khachHangMoiHomNay | number }} khách</h3>
+        <p class="text-[10px] text-slate-400 mt-1">So với ngày hôm qua</p>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:-translate-y-0.5 transition-all duration-200">
+        <div class="flex justify-between items-start mb-2.5">
+          <div class="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-lg">payments</span>
+          </div>
+          <div [ngClass]="summaryData.phanTramLoiNhuan >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-red-600'"
+            class="text-[11px] font-bold flex items-center gap-0.5 px-2 py-0.5 rounded-full">
+            {{ summaryData.phanTramLoiNhuan >= 0 ? '+' : '' }}{{ summaryData.phanTramLoiNhuan }}%
+            <span class="material-symbols-outlined text-xs">
+              {{ summaryData.phanTramLoiNhuan >= 0 ? 'trending_up' : 'trending_down' }}
+            </span>
+          </div>
+        </div>
+        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Lợi Nhuận Ròng</h4>
+        <h3 class="text-lg font-black text-slate-800 tracking-tight">{{ summaryData.loiNhuanHomNay | number:'1.0-0' }}đ</h3>
+        <p class="text-[10px] text-slate-400 mt-1">So với ngày hôm qua</p>
+      </div>
+
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+      <div class="lg:col-span-2 space-y-5">
+        
+        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+          <div class="flex justify-between items-center mb-3">
+            <div>
+              <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Xu hướng biến động doanh thu</h3>
+              <p class="text-[10px] text-slate-400">Thống kê dữ liệu dòng tiền POS</p>
+            </div>
+            <select class="text-xs border border-slate-200 rounded-lg py-0.5 pl-2 pr-7 h-7 bg-white outline-none focus:border-primary font-semibold text-slate-600 cursor-pointer">
+              <option>7 ngày gần nhất</option>
+              <option>30 ngày gần nhất</option>
+              <option>12 tháng gần nhất</option>
+            </select>
+          </div>
+          
+          <div class="h-[150px] w-full relative pt-1">
+            <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1000 300">
+              <line stroke="#f8fafc" stroke-width="1.5" x1="0" x2="1000" y1="50"  y2="50"/>
+              <line stroke="#f8fafc" stroke-width="1.5" x1="0" x2="1000" y1="125" y2="125"/>
+              <line stroke="#f8fafc" stroke-width="1.5" x1="0" x2="1000" y1="200" y2="200"/>
+              <line stroke="#f8fafc" stroke-width="1.5" x1="0" x2="1000" y1="275" y2="275"/>
+              <path d="M 20,260 L 180,210 L 340,240 L 500,150 L 660,190 L 820,100 L 980,60" fill="none" stroke="rgba(59,130,246,0.05)" stroke-linecap="round" stroke-width="10"/>
+              <path class="chart-line-path" d="M 20,260 L 180,210 L 340,240 L 500,150 L 660,190 L 820,100 L 980,60" fill="none" stroke="#3b82f6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              <circle cx="180" cy="210" r="3" fill="white" stroke="#3b82f6" stroke-width="1.5"/>
+              <circle cx="340" cy="240" r="3" fill="white" stroke="#3b82f6" stroke-width="1.5"/>
+              <circle cx="500" cy="150" r="3" fill="white" stroke="#3b82f6" stroke-width="1.5"/>
+              <circle cx="660" cy="190" r="3" fill="white" stroke="#3b82f6" stroke-width="1.5"/>
+              <circle cx="820" cy="100" r="3" fill="white" stroke="#3b82f6" stroke-width="1.5"/>
+              <circle cx="980" cy="60" r="4.5" fill="#3b82f6"/>
+            </svg>
+          </div>
+          <div class="flex justify-between mt-1 px-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+            <span>Thứ 2</span><span>Thứ 3</span><span>Thứ 4</span><span>Thứ 5</span><span>Thứ 6</span><span>Thứ 7</span><span class="text-blue-500">Chủ Nhật</span>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div class="px-4 py-3 flex justify-between items-center border-b border-slate-100">
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Giao dịch mới nhất</h3>
+            <a routerLink="/admin/hoa-don" class="text-xs font-bold text-primary hover:underline cursor-pointer">Xem tất cả</a>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left whitespace-nowrap">
+              <thead class="bg-slate-50/80 text-[10px] text-slate-400 font-black uppercase tracking-wider border-b border-slate-100">
+                <tr>
+                  <th class="px-5 py-2.5 w-24 text-center">Mã Đơn</th>
+                  <th class="px-5 py-2.5">Khách Hàng</th>
+                  <th class="px-5 py-2.5">Thời Gian</th>
+                  <th class="px-5 py-2.5 text-right">Số Tiền</th>
+                  <th class="px-5 py-2.5 text-center w-32">Trạng Thái</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-xs text-slate-600">
+                @for (item of summaryData.giaoDichGanDay.slice(0, 5); track item.soHD) {
+                  <tr class="hover:bg-slate-50/40 transition-colors">
+                    <td class="px-5 py-2.5 text-center font-mono font-bold text-primary">#{{ item.soHD }}</td>
+                    <td class="px-5 py-2.5 font-semibold text-slate-700">{{ item.tenKhachHang || 'Khách vãng lai' }}</td>
+                    <td class="px-5 py-2.5 text-slate-400 font-medium">{{ item.thoiGian | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td class="px-5 py-2.5 text-right font-black text-slate-800">{{ item.tongTien | number:'1.0-0' }}đ</td>
+                    <td class="px-5 py-2.5 text-center">
+                      <span class="px-2.5 py-0.5 rounded text-[10px] font-semibold inline-block" 
+                        [ngClass]="{
+                          'bg-emerald-50 text-emerald-700': item.trangThai === 'Đã thanh toán',
+                          'bg-amber-50 text-amber-700': item.trangThai === 'Chưa thanh toán',
+                          'bg-slate-100 text-slate-500': item.trangThai === 'Đã hủy'
+                        }">
+                        {{ item.trangThai }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+                @if (summaryData.giaoDichGanDay.length === 0) {
+                  <tr>
+                    <td colspan="5" class="px-5 py-8 text-center text-slate-400 font-medium">Hệ thống chưa ghi nhận hóa đơn nào phát sinh hôm nay.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="space-y-5">
+        
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div class="px-4 py-3 border-b border-slate-100">
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Thao tác nghiệp vụ</h3>
+          </div>
+          <div class="p-4 space-y-1.5">
+            
+            <a routerLink="/admin/san-pham/create" class="w-full flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200/50 rounded-xl hover:bg-blue-50/40 hover:border-primary/20 transition-all cursor-pointer group">
+              <div class="flex items-center gap-2.5">
+                <span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors text-lg">add_circle</span>
+                <span class="text-xs font-bold text-slate-600 group-hover:text-primary transition-colors">Tạo sản phẩm mới</span>
+              </div>
+              <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-primary transition-transform group-hover:translate-x-0.5">chevron_right</span>
+            </a>
+
+            <a routerLink="/admin/hoa-don/create" class="w-full flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200/50 rounded-xl hover:bg-blue-50/40 hover:border-primary/20 transition-all cursor-pointer group">
+              <div class="flex items-center gap-2.5">
+                <span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors text-lg">receipt_long</span>
+                <span class="text-xs font-bold text-slate-600 group-hover:text-primary transition-colors">Tạo hóa đơn / Gọi món</span>
+              </div>
+              <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-primary transition-transform group-hover:translate-x-0.5">chevron_right</span>
+            </a>
+
+            <a routerLink="/admin/khu-vuc-ban" class="w-full flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200/50 rounded-xl hover:bg-blue-50/40 hover:border-primary/20 transition-all cursor-pointer group">
+              <div class="flex items-center gap-2.5">
+                <span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors text-lg">table_bar</span>
+                <span class="text-xs font-bold text-slate-600 group-hover:text-primary transition-colors">Quản lý sơ đồ bàn</span>
+              </div>
+              <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-primary transition-transform group-hover:translate-x-0.5">chevron_right</span>
+            </a>
+
+            <a routerLink="/admin/thong-ke" class="w-full flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200/50 rounded-xl hover:bg-blue-50/40 hover:border-primary/20 transition-all cursor-pointer group">
+              <div class="flex items-center gap-2.5">
+                <span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors text-lg">query_stats</span>
+                <span class="text-xs font-bold text-slate-600 group-hover:text-primary transition-colors">Xem báo cáo doanh thu</span>
+              </div>
+              <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-primary transition-transform group-hover:translate-x-0.5">chevron_right</span>
+            </a>
+
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+          <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Hạ tầng kết nối phần cứng</h4>
+          <div class="space-y-3.5 text-xs text-slate-600 font-medium">
+            
+            <div class="space-y-1.5">
+              <div class="flex justify-between items-center">
+                <span class="text-slate-500">Máy chủ Core API</span>
+                <span class="flex items-center text-emerald-600 font-bold gap-1 text-[11px]">
+                  <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full Toms-pulse animate-pulse"></span> Online
+                </span>
+              </div>
+              <div class="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
+                <div class="bg-primary h-full w-[94%]"></div>
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center py-0.5 border-t border-slate-50">
+              <span class="text-slate-500">SQL Server (CoffeeAKAD)</span>
+              <span class="text-slate-400 text-[11px] font-mono">Ping: 12ms</span>
+            </div>
+
+            <div class="flex justify-between items-center py-0.5 border-t border-slate-50">
+              <span class="text-slate-500">Cổng truyền tải API Gateway</span>
+              <span class="text-slate-400 text-[11px] font-mono">Tải trọng: 4.2%</span>
+            </div>
+
+            <div class="flex justify-between items-center py-0.5 border-t border-slate-50">
+              <span class="text-slate-500">Realtime Socket (Nhà bếp)</span>
+              <span class="flex items-center text-emerald-600 font-bold gap-1 text-[11px]">
+                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Kết nối ổn định
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  }
+</div>

@@ -1,0 +1,184 @@
+<div class="pb-12">
+    @if (isLoadingData) {
+        <div class="flex flex-col items-center justify-center py-24 gap-4">
+            <span class="material-symbols-outlined animate-spin text-[48px] text-primary">progress_activity</span>
+            <p class="text-on-surface-variant text-body-md">Đang tải dữ liệu nhân viên...</p>
+        </div>
+    } @else {
+        <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+            <div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div>
+                    <nav aria-label="Breadcrumb" class="flex text-on-surface-variant font-body-sm text-body-sm mb-2">
+                        <ol class="flex items-center space-x-2">
+                            <li><a routerLink="/admin/nhan-vien" class="hover:text-primary transition-colors cursor-pointer">Nhân viên</a></li>
+                            <li class="flex items-center space-x-2">
+                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                                <span class="text-primary font-bold">Cập nhật: {{ employeeForm.get('hoNV')?.value }} {{ employeeForm.get('tenNV')?.value }}</span>
+                            </li>
+                        </ol>
+                    </nav>
+                    <h2 class="font-headline-md text-headline-md font-bold">Mã nhân viên: {{ maNV }}</h2>
+                </div>
+                <div class="flex gap-3 w-full sm:w-auto">
+                    <button type="button" routerLink="/admin/nhan-vien" class="flex-1 sm:flex-none px-6 py-2 border border-outline text-on-surface-variant font-body-md text-body-md rounded hover:bg-surface-container-high transition-colors">Hủy bỏ</button>
+                    <button type="submit" [disabled]="isSubmitting || employeeForm.invalid" class="flex-1 sm:flex-none px-6 py-2 bg-primary text-on-primary font-body-md text-body-md rounded hover:opacity-90 shadow-sm active:scale-95 transition-all disabled:opacity-50">
+                        {{ isSubmitting ? 'Đang lưu...' : 'Cập nhật' }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant">
+                        <div class="flex flex-col items-center">
+                            <div class="relative group cursor-pointer" (click)="fileInput.value = ''; fileInput.click()">
+                                <div class="w-32 h-32 rounded-full border-4 border-surface-container-high flex items-center justify-center bg-surface-container transition-all overflow-hidden relative"
+                                     [ngClass]="imagePreview ? 'border-primary' : ''">
+                                    
+                                    @if (imagePreview) {
+                                        <img [src]="imagePreview" class="w-full h-full object-cover">
+                                    } @else {
+                                        <span class="material-symbols-outlined text-outline text-[48px]">person</span>
+                                    }
+                                    
+                                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <span class="material-symbols-outlined text-white text-3xl">photo_camera</span>
+                                    </div>
+                                </div>
+                                <input #fileInput type="file" class="hidden" accept="image/*" (change)="onFileSelected($event)">
+                            </div>
+                            <h3 class="mt-4 font-title-sm text-title-sm font-bold">Ảnh đại diện</h3>
+                        </div>
+                        
+                        <div class="mt-8 space-y-4">
+                            <div>
+                                <label class="block font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase tracking-wider">Trạng thái làm việc</label>
+                                <select formControlName="trangThaiNV" class="w-full p-2.5 bg-transparent border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-1 focus:ring-primary outline-none">
+                                    <option value="Đang làm">Đang làm việc</option>
+                                    <option value="Thử việc">Thử việc</option>
+                                    <option value="Tạm nghỉ">Nghỉ phép</option>
+                                    <option value="Đã nghỉ">Đã nghỉ việc</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase tracking-wider">Ghi chú nhanh</label>
+                                <textarea formControlName="ghiChuNV" class="w-full p-2.5 bg-transparent border border-outline-variant rounded-lg font-body-md text-body-md resize-none focus:ring-1 focus:ring-primary outline-none" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-surface-container-lowest p-6 sm:p-8 rounded-xl shadow-sm border border-outline-variant">
+                        <div class="flex items-center gap-2 mb-6 text-primary">
+                            <span class="material-symbols-outlined">person</span>
+                            <h3 class="font-title-sm text-title-sm font-bold text-on-surface">Thông tin cá nhân</h3>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                            <div class="col-span-1">
+                                <label class="block font-body-sm text-body-sm text-on-surface-variant mb-1">Họ & Tên lót *</label>
+                                <input formControlName="hoNV" class="w-full p-2.5 bg-transparent border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-1 focus:ring-primary outline-none" type="text"/>
+                            </div>
+                            <div class="col-span-1">
+                                <label class="block font-body-sm text-body-sm text-on-surface-variant mb-1">Tên *</label>
+                                <input formControlName="tenNV" class="w-full p-2.5 bg-transparent border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-1 focus:ring-primary outline-none" type="text"/>
+                            </div>
+                            <div class="col-span-1">
+                                <label class="block font-body-sm text-body-sm text-on-surface-variant mb-1">Giới tính</label>
+                                <div class="flex gap-4 mt-2">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input formControlName="phaiNV" value="True" class="text-primary w-4 h-4 cursor-pointer" type="radio"/>
+                                        <span class="font-body-md text-body-md">Nam</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input formControlName="phaiNV" value="False" class="text-primary w-4 h-4 cursor-pointer" type="radio"/>
+                                        <span class="font-body-md text-body-md">Nữ</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-span-1">
+                                <label class="block font-body-sm text-body-sm text-on-surface-variant mb-1">Ngày sinh</label>
+                                <input formControlName="ngaySinhNV" class="w-full p-2.5 bg-transparent border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-1 focus:ring-primary outline-none cursor-pointer" type="date"/>
+                            </div>
+                            <div class="col-span-1">
+                                <label class="block font-body-sm text-body-sm text-on-surface-variant mb-1">Số điện thoại</label>
+                                <input formControlName="soDTNV" class="w-full p-2.5 bg-transparent border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-1 focus:ring-primary outline-none" type="tel"/>
+                            </div>
+                            <div class="col-span-1">
+                                <label class="block font-body-sm text-body-sm text-on-surface-variant mb-1">Số CCCD</label>
+                                <input formControlName="soCCCD" class="w-full p-2.5 bg-transparent border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-1 focus:ring-primary outline-none" type="text"/>
+                            </div>
+                            <div class="col-span-1 sm:col-span-2">
+                                <label class="block font-body-sm text-body-sm text-on-surface-variant mb-1">Địa chỉ thường trú</label>
+                                <input formControlName="diaChiNV_TT" class="w-full p-2.5 bg-transparent border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-1 focus:ring-primary outline-none" type="text"/>
+                            </div>
+                            <div class="col-span-1 sm:col-span-2">
+                                <label class="block font-body-sm text-body-sm text-on-surface-variant mb-1">Địa chỉ tạm trú</label>
+                                <input formControlName="diaChiNV_NT" class="w-full p-2.5 bg-transparent border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-1 focus:ring-primary outline-none" type="text"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-surface-container-lowest p-6 sm:p-8 rounded-xl shadow-sm border border-outline-variant">
+                        <div class="flex items-center gap-2 mb-6 text-primary">
+                            <span class="material-symbols-outlined">work</span>
+                            <h3 class="font-title-sm text-title-sm font-bold text-on-surface">Thông tin công việc & Học vấn</h3>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                            <div class="col-span-1">
+                                <label class="block font-body-sm text-body-sm text-on-surface-variant mb-1">Chức vụ *</label>
+                                <select formControlName="maLoaiNV" class="w-full p-2.5 bg-transparent border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-1 focus:ring-primary outline-none cursor-pointer">
+                                    <option value="">-- Chọn chức vụ --</option>
+                                    @for (cat of categories; track cat.maLoaiNV) {
+                                        <option [value]="cat.maLoaiNV">{{ cat.tenLoaiNV }}</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-span-1">
+                                <label class="block font-body-sm text-body-sm text-on-surface-variant mb-1">Trình độ học vấn</label>
+                                <select formControlName="trinhDoHV" class="w-full p-2.5 bg-transparent border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-1 focus:ring-primary outline-none cursor-pointer">
+                                    <option value="Đại học">Đại học</option>
+                                    <option value="Cao đẳng">Cao đẳng</option>
+                                    <option value="Trung cấp">Trung cấp</option>
+                                    <option value="Phổ thông trung học">Phổ thông trung học</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-surface-container-lowest p-6 sm:p-8 rounded-xl shadow-sm border border-outline-variant">
+                        <div class="flex items-center gap-2 mb-6 text-primary">
+                            <span class="material-symbols-outlined">payments</span>
+                            <h3 class="font-title-sm text-title-sm font-bold text-on-surface">Tài chính & Bảo hiểm</h3>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                            <div class="col-span-1">
+                                <label class="block font-body-sm text-body-sm text-on-surface-variant mb-1">Số tài khoản ngân hàng</label>
+                                <input formControlName="soTKNV" class="w-full p-2.5 bg-transparent border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-1 focus:ring-primary outline-none" type="text"/>
+                            </div>
+                            <div class="col-span-1">
+                                <label class="block font-body-sm text-body-sm text-on-surface-variant mb-1">Tên ngân hàng</label>
+                                <select formControlName="tenNgHNV" class="w-full p-2.5 bg-transparent border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-1 focus:ring-primary outline-none cursor-pointer">
+                                    <option value="">Chọn ngân hàng</option>
+                                    <option value="Vietcombank">Vietcombank</option>
+                                    <option value="Techcombank">Techcombank</option>
+                                    <option value="MB Bank">MB Bank</option>
+                                    <option value="TP Bank">TP Bank</option>
+                                    <option value="ACB">ACB</option>
+                                </select>
+                            </div>
+                            <div class="col-span-1">
+                                <label class="block font-body-sm text-body-sm text-on-surface-variant mb-1">Số thẻ BHYT</label>
+                                <input formControlName="soBHYT" class="w-full p-2.5 bg-transparent border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-1 focus:ring-primary outline-none" type="text"/>
+                            </div>
+                            <div class="col-span-1">
+                                <label class="block font-body-sm text-body-sm text-on-surface-variant mb-1">Số sổ BHXH</label>
+                                <input formControlName="soBHXH" class="w-full p-2.5 bg-transparent border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-1 focus:ring-primary outline-none" type="text"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    }
+</div>

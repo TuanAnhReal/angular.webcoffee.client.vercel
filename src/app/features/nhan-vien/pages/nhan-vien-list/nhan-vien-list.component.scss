@@ -1,0 +1,10 @@
+.custom-shadow {
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+}
+
+.table-row-hover {
+    transition: background-color 0.2s ease;
+    &:hover {
+        background-color: rgba(0, 88, 190, 0.04); /* Tương đương hover:bg-primary/5 */
+    }
+}

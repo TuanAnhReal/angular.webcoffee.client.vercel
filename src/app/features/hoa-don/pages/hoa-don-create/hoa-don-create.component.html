@@ -1,0 +1,261 @@
+<main class="pb-12 flex gap-8 flex-col lg:flex-row min-h-[calc(100vh-100px)] h-auto items-stretch">
+
+    <section class="w-full lg:w-1/3 flex flex-col gap-6 relative">
+        <form [formGroup]="invoiceForm"
+            class="bg-surface-container-lowest p-6 rounded-lg border border-outline-variant shadow-sm sticky top-4">
+            <div class="flex items-center justify-between mb-6 border-b border-outline-variant pb-3">
+                <h3 class="font-title-sm text-title-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">receipt_long</span> Thông tin Order
+                </h3>
+            </div>
+
+            <div class="space-y-5">
+                <div
+                    class="bg-primary-container/10 p-3 rounded-lg border border-primary-container/30 flex justify-between items-center">
+                    <div>
+                        <p class="text-[11px] font-bold text-primary uppercase">Nhân viên Order</p>
+                        <p class="font-semibold text-body-sm">{{ currentUser?.hoTen || 'Đang tải...' }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[11px] font-bold text-secondary uppercase">Pha chế</p>
+                        <p class="text-body-sm text-on-surface-variant italic">Chờ nhận đơn...</p>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container p-3 rounded border border-outline-variant">
+                    <label class="block text-body-sm font-semibold text-on-surface-variant mb-1.5">SĐT Khách
+                        hàng</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-3 flex items-center text-on-surface-variant opacity-50">
+                            <span class="material-symbols-outlined text-[18px]">call</span>
+                        </span>
+                        <input formControlName="sdtKH" (input)="onPhoneChange($event)"
+                            class="w-full pl-10 pr-3 py-2 bg-surface-container-lowest border border-outline-variant rounded text-body-md focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all"
+                            placeholder="Nhập SĐT để tìm..." type="text" />
+                    </div>
+                    <div class="mt-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-[18px]">account_circle</span>
+                        <span class="font-bold text-primary">{{ customerNameDisplay }}</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-body-sm font-semibold text-on-surface-variant mb-1.5">Khu vực *</label>
+                        <select formControlName="soKV" (change)="onAreaChange($event)"
+                            class="w-full px-3 py-2 bg-surface-container-low border border-outline-variant rounded text-body-md focus:ring-1 focus:ring-primary focus:border-primary outline-none cursor-pointer">
+                            <option value="">Chọn khu vực</option>
+                            @for (kv of areas; track kv.soKV) {
+                            <option [value]="kv.soKV">{{ kv.tenKV }}</option>
+                            }
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-body-sm font-semibold text-on-surface-variant mb-1.5">Bàn (Trống)
+                            *</label>
+                        <select formControlName="soBan"
+                            class="w-full px-3 py-2 bg-surface-container-low border border-outline-variant rounded text-body-md focus:ring-1 focus:ring-primary focus:border-primary outline-none cursor-pointer disabled:opacity-50"
+                            [disabled]="filteredTables.length === 0">
+                            <option value="">Chọn bàn</option>
+                            @for (b of filteredTables; track b.soBan) {
+                            <option [value]="b.soBan">{{ b.tenBan }}</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-body-sm font-semibold text-on-surface-variant mb-1.5">Ghi chú yêu
+                        cầu</label>
+                    <textarea formControlName="ghiChuHD"
+                        class="w-full px-3 py-2 bg-surface-container-low border border-outline-variant rounded text-body-md focus:ring-1 focus:ring-primary focus:border-primary outline-none resize-none"
+                        placeholder="VD: Ít đá, mang về..." rows="3"></textarea>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <section class="w-full lg:w-2/3 flex flex-col gap-6">
+
+        <div
+            class="bg-surface-container-lowest p-6 rounded-lg border border-outline-variant shadow-sm flex flex-col flex-[3] min-h-[500px]">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-title-sm text-title-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">restaurant_menu</span> Menu Sản phẩm
+                </h3>
+                <div class="flex gap-2">
+                    <button (click)="filterByCategory('Tất cả')"
+                        [ngClass]="activeCategory === 'Tất cả' ? 'bg-primary text-white' : 'bg-surface-container text-on-surface-variant'"
+                        class="px-4 py-1.5 rounded text-body-sm font-semibold transition-colors cursor-pointer">Tất
+                        cả</button>
+                    <button (click)="filterByCategory('Cà phê')"
+                        [ngClass]="activeCategory === 'Cà phê' ? 'bg-primary text-white' : 'bg-surface-container text-on-surface-variant'"
+                        class="px-4 py-1.5 rounded text-body-sm font-semibold transition-colors cursor-pointer">Cà
+                        phê</button>
+                    <button (click)="filterByCategory('Trà')"
+                        [ngClass]="activeCategory === 'Trà' ? 'bg-primary text-white' : 'bg-surface-container text-on-surface-variant'"
+                        class="px-4 py-1.5 rounded text-body-sm font-semibold transition-colors cursor-pointer">Trà</button>
+                    <button (click)="filterByCategory('Bánh')"
+                        [ngClass]="activeCategory === 'Bánh' ? 'bg-primary text-white' : 'bg-surface-container text-on-surface-variant'"
+                        class="px-4 py-1.5 rounded text-body-sm font-semibold transition-colors cursor-pointer">Bánh</button>
+                </div>
+            </div>
+
+            <div class="relative mb-4">
+                <span class="absolute inset-y-0 left-4 flex items-center text-on-surface-variant opacity-50">
+                    <span class="material-symbols-outlined">search</span>
+                </span>
+                <input (input)="onSearchProduct($event)"
+                    class="w-full pl-12 pr-4 py-3 bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all shadow-inner"
+                    placeholder="Tìm tên sản phẩm nhanh..." type="text" />
+            </div>
+
+            <div
+                class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pr-2 custom-scrollbar flex-1 pb-4">
+                @if (isLoading) {
+                <div class="col-span-full flex justify-center py-8">
+                    <span
+                        class="material-symbols-outlined animate-spin text-[32px] text-primary">progress_activity</span>
+                </div>
+                }
+
+                @for (p of filteredProducts; track p.maSp) {
+                <div (click)="addToCart(p)"
+                    class="group bg-surface-container-lowest border border-outline-variant rounded-lg p-3 hover:border-primary hover:shadow-md transition-all cursor-pointer flex flex-col h-48">
+                    <div
+                        class="relative flex-1 w-full bg-surface-container-high rounded mb-2 overflow-hidden flex-shrink-0">
+                        @if (p.hinhAnh) {
+                        <img [src]="p.hinhAnh"
+                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        } @else {
+                        <div class="w-full h-full flex items-center justify-center bg-secondary-container text-primary">
+                            <span class="material-symbols-outlined text-[32px]">local_cafe</span>
+                        </div>
+                        }
+                        <div
+                            class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <span class="bg-primary text-white px-3 py-1 rounded text-[10px] font-bold">NHẤN ĐỂ
+                                THÊM</span>
+                        </div>
+                    </div>
+                    <h4 class="font-bold text-body-md leading-tight mb-1 line-clamp-2">{{ p.tenSp }}</h4>
+                    <div class="flex items-center justify-between mt-auto">
+                        <span class="text-primary font-bold text-body-md">{{ p.giaSp | number:'1.0-0' }}đ</span>
+                        <button
+                            class="w-8 h-8 flex items-center justify-center rounded bg-secondary-container text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                            <span class="material-symbols-outlined text-[20px]">add</span>
+                        </button>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+
+        <div
+            class="bg-surface-container-lowest p-6 rounded-lg border border-outline-variant shadow-sm flex flex-col flex-[2] min-h-[350px]">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-title-sm text-title-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">shopping_cart</span> Chi tiết đơn hàng
+                </h3>
+                <span
+                    class="text-[12px] bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded font-bold">{{
+                    cart.length }} Sản phẩm</span>
+            </div>
+
+            <div class="flex-1 overflow-y-auto border-y border-outline-variant py-2 custom-scrollbar min-h-[150px]">
+                @if (cart.length === 0) {
+                <div class="h-full flex flex-col items-center justify-center text-outline opacity-60">
+                    <span class="material-symbols-outlined text-[48px] mb-2">remove_shopping_cart</span>
+                    <p class="font-body-md">Chưa có sản phẩm nào được chọn</p>
+                </div>
+                } @else {
+                <table class="w-full text-left">
+                    <thead class="sticky top-0 bg-surface-container-lowest z-10">
+                        <tr class="text-label-caps text-on-surface-variant border-b border-outline-variant">
+                            <th class="py-2">Sản phẩm</th>
+                            <th class="py-2 text-center w-24">SL</th>
+                            <th class="py-2 text-right">Đơn giá</th>
+                            <th class="py-2 text-right">Thành tiền</th>
+                            <th class="py-2 text-center w-10"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-body-md">
+                        @for (item of cart; track item.product.maSp) {
+                        <tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors">
+                            <td class="py-4">
+                                <p class="font-bold">{{ item.product.tenSp }}</p>
+                                <p class="text-[11px] text-on-surface-variant">{{ item.product.kichThuoc || 'Mặc định'
+                                    }}</p>
+                            </td>
+                            <td class="py-4">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button (click)="decreaseQty(item)"
+                                        class="w-6 h-6 flex items-center justify-center border border-outline-variant rounded hover:bg-surface-container transition-colors cursor-pointer"><span
+                                            class="material-symbols-outlined text-[14px]">remove</span></button>
+                                    <span class="font-bold w-4 text-center">{{ item.quantity }}</span>
+                                    <button (click)="increaseQty(item)"
+                                        class="w-6 h-6 flex items-center justify-center border border-outline-variant rounded hover:bg-surface-container transition-colors cursor-pointer"><span
+                                            class="material-symbols-outlined text-[14px]">add</span></button>
+                                </div>
+                            </td>
+                            <td class="py-4 text-right">{{ item.product.giaSp | number:'1.0-0' }}</td>
+                            <td class="py-4 text-right font-bold text-primary">{{ (item.product.giaSp * item.quantity) |
+                                number:'1.0-0' }}</td>
+                            <td class="py-4 text-center">
+                                <button (click)="removeFromCart(item)"
+                                    class="text-on-surface-variant hover:text-error transition-colors cursor-pointer"><span
+                                        class="material-symbols-outlined text-[18px]">delete</span></button>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+                }
+            </div>
+
+            <div class="grid grid-cols-2 gap-8 pt-4">
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center text-body-sm">
+                        <span class="text-on-surface-variant">Tổng tiền hàng:</span>
+                        <span class="font-semibold">{{ subTotal | number:'1.0-0' }}đ</span>
+                    </div>
+                    <div class="flex justify-between items-center text-body-sm">
+                        <span class="text-on-surface-variant">Thuế VAT (10%):</span>
+                        <span class="font-semibold">{{ vatAmount | number:'1.0-0' }}đ</span>
+                    </div>
+                    <div class="flex justify-between items-center text-body-sm">
+                        <span class="text-on-surface-variant text-primary font-bold">Phụ thu khu vực:</span>
+                        <span class="font-bold text-primary">{{ currentAreaSurcharge | number:'1.0-0' }}đ</span>
+                    </div>
+                </div>
+                <form [formGroup]="invoiceForm" class="space-y-3 flex flex-col justify-end">
+                    <div class="flex justify-between items-center border-b border-outline-variant pb-2">
+                        <span class="text-body-sm font-semibold text-primary">Giảm giá HĐ (VND):</span>
+                        <input formControlName="giamGiaHD" type="number" min="0"
+                            class="w-28 text-right px-2 py-1 bg-surface-container-low border border-outline-variant rounded text-body-sm focus:ring-1 focus:ring-primary outline-none font-semibold text-error" />
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-title-sm text-on-surface uppercase">Thanh toán:</span>
+                        <span class="font-bold text-[22px] text-primary tracking-tight">{{ totalAmount | number:'1.0-0'
+                            }}đ</span>
+                    </div>
+                </form>
+            </div>
+
+            <div class="flex gap-4 mt-6">
+                <button routerLink="/admin/hoa-don"
+                    class="flex-1 py-3 bg-surface-container-high text-on-surface-variant font-bold rounded hover:bg-outline-variant transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <span class="material-symbols-outlined">arrow_back</span> HỦY ORDER
+                </button>
+                <button (click)="onSubmit()" [disabled]="isSubmitting"
+                    class="flex-[2] py-3 bg-primary text-white font-bold rounded shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer">
+                    @if (isSubmitting) {
+                    <span class="material-symbols-outlined animate-spin">progress_activity</span> ĐANG XỬ LÝ...
+                    } @else {
+                    <span class="material-symbols-outlined">send</span> CHUYỂN PHA CHẾ
+                    }
+                </button>
+            </div>
+        </div>
+    </section>
+</main>

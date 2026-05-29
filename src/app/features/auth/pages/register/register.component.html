@@ -1,0 +1,90 @@
+<main class="flex-grow flex items-center justify-center w-full px-container-padding py-12">
+    <div class="registration-card bg-surface-container-lowest w-full max-w-[480px] rounded-lg p-8 md:p-10 border border-outline-variant">
+        
+        <div class="flex flex-col items-center mb-6">
+            <h1 class="font-headline-md text-headline-md font-bold text-primary text-center text-2xl">Tạo tài khoản mới</h1>
+            <p class="font-body-sm text-body-sm text-on-surface-variant mt-1 text-center">Bắt đầu quản lý cửa hàng của bạn chuyên nghiệp hơn</p>
+        </div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4">
+            
+            <div class="space-y-1">
+                <label class="font-body-sm text-body-sm text-on-surface-variant block" for="hoVaTen">Họ và tên *</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">person</span>
+                    <input formControlName="hoVaTen" class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none" id="hoVaTen" placeholder="Nguyễn Văn A" type="text"/>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label class="font-body-sm text-body-sm text-amber-800 font-bold block" for="maNV">Mã Nhân Viên (Nếu có)</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-amber-600 text-[20px]">badge</span>
+                        <input formControlName="maNV" class="w-full pl-10 pr-4 py-2 bg-amber-50/40 border border-amber-200 rounded-lg font-body-md text-body-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all outline-none" id="maNV" placeholder="Bỏ trống nếu tạo mới" type="text"/>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="font-body-sm text-body-sm text-on-surface-variant block" for="tenDangNhap">Tên đăng nhập *</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">account_box</span>
+                        <input formControlName="tenDangNhap" class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none" id="tenDangNhap" placeholder="nvan01" type="text"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-1">
+                <label class="font-body-sm text-body-sm text-on-surface-variant block">Chọn chức vụ vị trí công việc *</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">supervised_user_circle</span>
+                    <select formControlName="maPQ" class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none text-on-surface text-sm">
+                        <option value="">-- Click chọn vị trí của bạn trong nhà hàng --</option>
+                        @for (quyen of danhSachQuyen(); track quyen.maPQ) {
+                            <option [value]="quyen.maPQ">{{ quyen.tenPQ }} ({{ quyen.moTaPQ }})</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label class="font-body-sm text-body-sm text-on-surface-variant block" for="password">Mật khẩu *</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">lock</span>
+                        <input formControlName="matKhau" class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none" id="password" placeholder="••••••••" type="password"/>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="font-body-sm text-body-sm text-on-surface-variant block" for="confirmPassword">Xác nhận mật khẩu *</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">lock_reset</span>
+                        <input formControlName="confirmPassword" class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none" id="confirmPassword" placeholder="••••••••" type="password"/>
+                    </div>
+                </div>
+            </div>
+
+            @if (registerForm.errors?.['mauKhauKhongKhop'] && registerForm.get('confirmPassword')?.touched) {
+                <p class="text-xs text-error font-semibold flex items-center gap-1"><span class="material-symbols-outlined text-xs">error</span> Mật khẩu xác nhận lại không trùng khớp.</p>
+            }
+
+            <div class="flex items-start gap-2 pt-1">
+                <input formControlName="terms" class="mt-1 rounded-sm border-outline-variant text-primary focus:ring-primary cursor-pointer" id="terms" type="checkbox"/>
+                <label class="font-body-sm text-body-sm text-on-surface-variant select-none" for="terms">
+                    Tôi đồng ý với <a class="text-primary hover:underline font-bold" href="#">Điều khoản dịch vụ</a>.
+                </label>
+            </div>
+
+            <button class="w-full bg-primary hover:bg-primary-container text-white font-semibold py-2.5 rounded-lg transition-all active:scale-[0.98] shadow-sm flex items-center justify-center gap-2 mt-2 cursor-pointer" type="submit">
+                <span>{{ dangTai ? 'Đang xử lý tạo...' : 'Xác nhận Đăng ký' }}</span>
+                @if (!dangTai) { <span class="material-symbols-outlined text-[20px]">arrow_forward</span> }
+            </button>
+        </form>
+
+        <div class="mt-6 text-center border-t border-outline-variant pt-4">
+            <p class="font-body-md text-body-md text-on-surface-variant">
+                Đã có tài khoản hệ thống? 
+                <a routerLink="/login" class="text-primary font-bold hover:underline ml-1">Đăng nhập ngay</a>
+            </p>
+        </div>
+    </div>
+</main>

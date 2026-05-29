@@ -1,0 +1,248 @@
+<div class="pb-12 space-y-8 max-w-[1600px] relative">
+
+    <section
+        class="flex flex-wrap items-center justify-between gap-4 bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant">
+        <div class="flex items-center gap-2">
+            <h2 class="font-headline-md text-headline-md text-on-surface font-bold mr-4">Quản lý Khu vực & Bàn</h2>
+            <button (click)="openKhuVucModal('create')"
+                class="flex items-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-lg font-body-md text-body-md hover:opacity-90 active:scale-95 transition-all">
+                <span class="material-symbols-outlined text-[20px]">add_circle</span> Thêm khu vực
+            </button>
+            <button (click)="openBanModal('create')"
+                class="flex items-center gap-2 bg-white border border-outline-variant text-secondary px-4 py-2 rounded-lg font-body-md text-body-md hover:bg-surface-container-low active:scale-95 transition-all">
+                <span class="material-symbols-outlined text-[20px]">grid_view</span> Thêm bàn
+            </button>
+        </div>
+        <div class="flex items-center gap-6 px-4 py-1">
+            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-green-500"></span><span
+                    class="text-body-sm font-medium text-secondary">Trống</span></div>
+            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500"></span><span
+                    class="text-body-sm font-medium text-primary">Đang phục vụ</span></div>
+            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-error"></span><span
+                    class="text-body-sm font-medium text-secondary">Bảo trì</span></div>
+        </div>
+    </section>
+
+    @if (isLoading) {
+    <div class="flex justify-center py-20"><span
+            class="material-symbols-outlined animate-spin text-[40px] text-primary">progress_activity</span></div>
+    } @else {
+    <div class="space-y-10">
+        @for (kv of khuVucs; track kv.soKV) {
+        <section class="space-y-4">
+            <div class="flex items-center justify-between border-b border-outline-variant pb-2 group">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary">floor</span>
+                    <h3 class="font-title-sm text-title-sm">{{ kv.tenKV }}</h3>
+                    <span
+                        class="px-2 py-0.5 bg-surface-container-high rounded text-[11px] font-bold text-secondary uppercase tracking-wider">{{
+                        kv.bans.length }} Bàn</span>
+                    <span class="text-[12px] text-on-surface-variant ml-2">Phụ thu: {{ kv.phuThuKV }}đ</span>
+                </div>
+                <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button (click)="openBanModal('create', undefined, kv.soKV)"
+                        class="text-primary hover:underline text-body-sm">+ Thêm bàn vào khu này</button>
+                    <span class="text-outline">|</span>
+                    <button (click)="openKhuVucModal('update', kv)"
+                        class="text-secondary hover:text-primary text-body-sm">Sửa khu vực</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                @for (ban of kv.bans; track ban.soBan) {
+                <div class="p-4 rounded-xl border-2 transition-all flex flex-col h-full relative group"
+                    [ngClass]="{
+                        'bg-green-50/50 border-green-500 border-opacity-40 hover:shadow-green-100': ban.trangThaiBan === 'Trống',
+                        'bg-amber-50/50 border-amber-500 border-opacity-50 hover:shadow-amber-100': ban.trangThaiBan === 'Đang phục vụ',
+                        'bg-error-container/10 border-error border-opacity-40 hover:shadow-red-100': ban.trangThaiBan === 'Bảo trì',
+                        'bg-blue-50/30 border-blue-400 border-opacity-40 border-dashed': ban.trangThaiBan === 'Đã đặt'
+                    }">
+                    
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white shadow-sm"
+                            [ngClass]="{
+                                'bg-green-600': ban.trangThaiBan === 'Trống',
+                                'bg-amber-500': ban.trangThaiBan === 'Đang phục vụ',
+                                'bg-error': ban.trangThaiBan === 'Bảo trì',
+                                'bg-blue-500': ban.trangThaiBan === 'Đã đặt'
+                            }">
+                            {{ ban.soBan }}
+                        </div>
+                        
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-sm"
+                            [ngClass]="{
+                                'text-green-700 bg-green-100': ban.trangThaiBan === 'Trống',
+                                'text-amber-700 bg-amber-100': ban.trangThaiBan === 'Đang phục vụ',
+                                'text-error bg-error-container': ban.trangThaiBan === 'Bảo trì',
+                                'text-blue-700 bg-blue-100': ban.trangThaiBan === 'Đã đặt'
+                            }">
+                            {{ ban.trangThaiBan }}
+                        </span>
+                    </div>
+                    
+                    <h4 class="font-bold text-body-md text-on-surface mb-1">{{ ban.tenBan }}</h4>
+                    <p class="text-xs text-on-surface-variant line-clamp-2 mt-auto">{{ ban.ghiChuBAN || 'Không có ghi chú' }}</p>
+
+                    <div class="absolute inset-0 bg-surface-container-lowest/90 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 rounded-xl">
+                        <button (click)="openBanModal('update', ban)" class="w-10 h-10 rounded-full bg-primary-container text-primary flex items-center justify-center hover:scale-110 transition-transform shadow-sm cursor-pointer" title="Chỉnh sửa">
+                            <span class="material-symbols-outlined text-[20px]">edit</span>
+                        </button>
+                        <button (click)="deleteBan(ban)" 
+                                [disabled]="ban.trangThaiBan !== 'Trống'"
+                                class="w-10 h-10 rounded-full bg-error-container text-error flex items-center justify-center transition-transform shadow-sm cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed" 
+                                [title]="ban.trangThaiBan === 'Trống' ? 'Xóa bàn' : 'Không thể xóa bàn đang sử dụng'">
+                            <span class="material-symbols-outlined text-[20px]">delete</span>
+                        </button>
+                    </div>
+                </div>
+                }
+            </div>
+        </section>
+        }
+    </div>
+    }
+
+    <div class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center transition-all"
+        [ngClass]="isKhuVucModalOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'">
+        <div class="bg-surface-container-lowest w-full max-w-md rounded-xl shadow-2xl transform transition-all"
+            [ngClass]="isKhuVucModalOpen ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'">
+            <div class="p-6 border-b border-outline-variant flex justify-between items-center">
+                <h3 class="font-headline-md text-headline-md font-bold">{{ modalMode === 'create' ? 'Thêm Khu Vực' :
+                    'Cập nhật Khu Vực' }}</h3>
+                <button (click)="isKhuVucModalOpen = false" class="text-on-surface-variant hover:text-error"><span
+                        class="material-symbols-outlined">close</span></button>
+            </div>
+            <form [formGroup]="khuVucForm" (ngSubmit)="submitKhuVuc()" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-1">
+                        <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">Mã khu vực
+                            *</label>
+                        <input formControlName="soKV" type="text"
+                            class="w-full p-2 border border-outline-variant rounded focus:border-primary outline-none"
+                            placeholder="VD: KV01">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">Trạng thái</label>
+                        <select formControlName="trangThaiKhu"
+                            class="w-full p-2 border border-outline-variant rounded focus:border-primary outline-none cursor-pointer">
+                            <option value="Mở cửa">Mở cửa</option>
+                            <option value="Bảo trì">Bảo trì</option>
+                            <option value="Đóng cửa">Đóng cửa</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">Tên khu vực *</label>
+                    <input formControlName="tenKV" type="text"
+                        class="w-full p-2 border border-outline-variant rounded focus:border-primary outline-none"
+                        placeholder="VD: Sân vườn">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-1">
+                        <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">Giờ mở cửa</label>
+                        <input formControlName="tgMo" type="time"
+                            class="w-full p-2 border border-outline-variant rounded focus:border-primary outline-none cursor-pointer">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">Giờ đóng
+                            cửa</label>
+                        <input formControlName="tgDong" type="time"
+                            class="w-full p-2 border border-outline-variant rounded focus:border-primary outline-none cursor-pointer">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">Phụ thu khu vực
+                        (VNĐ)</label>
+                    <input formControlName="phuThuKV" type="number" min="0"
+                        class="w-full p-2 border border-outline-variant rounded focus:border-primary outline-none"
+                        placeholder="VD: 10000">
+                </div>
+
+                <div>
+                    <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">Ghi chú</label>
+                    <textarea formControlName="ghiChuKV" rows="2"
+                        class="w-full p-2 border border-outline-variant rounded focus:border-primary outline-none resize-none"
+                        placeholder="Thông tin thêm..."></textarea>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-3">
+                    <button type="button" (click)="isKhuVucModalOpen = false"
+                        class="px-4 py-2 border rounded font-semibold text-secondary hover:bg-surface-container transition-colors cursor-pointer">Hủy</button>
+                    <button type="submit" [disabled]="khuVucForm.invalid"
+                        class="px-4 py-2 bg-primary text-white rounded font-semibold hover:brightness-110 transition-colors disabled:opacity-50 cursor-pointer">Lưu
+                        lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center transition-all"
+        [ngClass]="isBanModalOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'">
+        <div class="bg-surface-container-lowest w-full max-w-md rounded-xl shadow-2xl transform transition-all"
+            [ngClass]="isBanModalOpen ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'">
+            <div class="p-6 border-b border-outline-variant flex justify-between items-center">
+                <h3 class="font-headline-md text-headline-md font-bold">{{ modalMode === 'create' ? 'Thêm Bàn' : 'Cập
+                    nhật Bàn' }}</h3>
+                <button (click)="isBanModalOpen = false" class="text-on-surface-variant hover:text-error"><span
+                        class="material-symbols-outlined">close</span></button>
+            </div>
+            <form [formGroup]="banForm" (ngSubmit)="submitBan()" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-1">
+                        <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">Mã Bàn *</label>
+                        <input formControlName="soBan" type="text"
+                            class="w-full p-2 border border-outline-variant rounded focus:border-primary outline-none"
+                            placeholder="VD: B01">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">Thuộc Khu vực
+                            *</label>
+                        <select formControlName="soKV"
+                            class="w-full p-2 border border-outline-variant rounded focus:border-primary outline-none cursor-pointer">
+                            @for (kv of khuVucs; track kv.soKV) {
+                            <option [value]="kv.soKV">{{ kv.tenKV }}</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-1">
+                        <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">Tên Bàn hiển thị
+                            *</label>
+                        <input formControlName="tenBan" type="text"
+                            class="w-full p-2 border border-outline-variant rounded focus:border-primary outline-none"
+                            placeholder="VD: Bàn số 1">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">Trạng thái</label>
+                        <select formControlName="trangThaiBan"
+                            class="w-full p-2 border border-outline-variant rounded focus:border-primary outline-none cursor-pointer">
+                            <option value="Trống">Trống</option>
+                            <option value="Đang phục vụ">Đang phục vụ</option>
+                            <option value="Bảo trì">Bảo trì</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">Ghi chú về bàn</label>
+                    <textarea formControlName="ghiChuBAN" rows="2"
+                        class="w-full p-2 border border-outline-variant rounded focus:border-primary outline-none resize-none"
+                        placeholder="VD: Bàn bị kênh chân, gần cửa sổ..."></textarea>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-3">
+                    <button type="button" (click)="isBanModalOpen = false"
+                        class="px-4 py-2 border rounded font-semibold text-secondary hover:bg-surface-container transition-colors cursor-pointer">Hủy</button>
+                    <button type="submit" [disabled]="banForm.invalid"
+                        class="px-4 py-2 bg-primary text-white rounded font-semibold hover:brightness-110 transition-colors disabled:opacity-50 cursor-pointer">Lưu
+                        lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

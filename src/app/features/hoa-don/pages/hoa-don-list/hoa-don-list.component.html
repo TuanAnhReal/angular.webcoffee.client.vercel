@@ -1,0 +1,178 @@
+<div class="pb-6 relative h-full animate-in fade-in duration-200 text-slate-700">
+    <div class="mb-5 flex justify-between items-end border-b border-slate-100 pb-3">
+        <div>
+            <h2 class="text-base font-black text-slate-900 tracking-tight">Danh sách Hóa đơn</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Quản lý và tra cứu thông tin dòng tiền hóa đơn toàn hệ thống</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:-translate-y-0.5 transition-all">
+            <div class="flex justify-between items-start mb-2">
+                <div class="p-2 bg-blue-50 text-blue-500 rounded-xl">
+                    <span class="material-symbols-outlined text-lg flex">payments</span>
+                </div>
+                <span class="text-[10px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full font-bold uppercase">Hôm nay</span>
+            </div>
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Doanh thu (Đã thanh toán)</p>
+            <h3 class="text-lg font-black text-slate-800 tracking-tight">{{ totalRevenueToday | number:'1.0-0' }}đ</h3>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:-translate-y-0.5 transition-all">
+            <div class="flex justify-between items-start mb-2">
+                <div class="p-2 bg-amber-50 text-amber-500 rounded-xl">
+                    <span class="material-symbols-outlined text-lg flex">pending_actions</span>
+                </div>
+                <span class="text-[10px] text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full font-bold uppercase">Cần xử lý</span>
+            </div>
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Hóa đơn chờ thanh toán</p>
+            <h3 class="text-lg font-black text-slate-800 tracking-tight">{{ pendingInvoicesCount }} hóa đơn</h3>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:-translate-y-0.5 transition-all">
+            <div class="flex justify-between items-start mb-2">
+                <div class="p-2 bg-slate-50 text-slate-500 rounded-xl">
+                    <span class="material-symbols-outlined text-lg flex">receipt</span>
+                </div>
+                <span class="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full font-bold uppercase">Dữ liệu gốc</span>
+            </div>
+            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Tổng số hóa đơn hệ thống</p>
+            <h3 class="text-lg font-black text-slate-800 tracking-tight">{{ totalInvoicesCount | number }} đơn</h3>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-t-2xl border border-slate-100 p-4 flex flex-wrap gap-4 items-center justify-between shadow-sm">
+        <div class="flex flex-wrap gap-3 items-center w-full lg:w-auto text-xs font-semibold text-slate-500">
+            <div class="relative w-full sm:w-60">
+                <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                <input [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()"
+                    class="w-full bg-slate-50/50 text-xs pl-8 pr-3 h-8 border border-slate-200 rounded-lg outline-none focus:border-primary transition-all text-slate-700"
+                    placeholder="Tìm số HD, mã KH..." type="text" />
+            </div>
+
+            <div class="flex flex-col">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Ngày lập đơn</span>
+                <input [(ngModel)]="selectedDate" (ngModelChange)="applyFilters()"
+                    class="border border-slate-200 rounded-lg text-xs h-8 px-2 focus:border-primary bg-white cursor-pointer outline-none text-slate-600 font-medium"
+                    type="date" />
+            </div>
+
+            <div class="flex flex-col">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Trạng thái thanh toán</span>
+                <select [(ngModel)]="selectedStatus" (ngModelChange)="applyFilters()"
+                    class="border border-slate-200 rounded-lg text-xs h-8 pl-2 pr-7 focus:border-primary bg-white cursor-pointer outline-none text-slate-600 font-medium">
+                    <option value="Tất cả">Tất cả trạng thái</option>
+                    <option value="Đã thanh toán">Đã thanh toán</option>
+                    <option value="Chưa thanh toán">Chưa thanh toán</option>
+                    <option value="Đã hủy">Đã hủy</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="flex gap-2 w-full lg:w-auto justify-end">
+            <button class="h-8 px-3 border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 bg-white hover:bg-slate-50 transition-all shadow-sm flex items-center gap-1 cursor-pointer active:scale-95">
+                <span class="material-symbols-outlined text-sm">download</span> Xuất Excel
+            </button>
+        </div>
+    </div>
+
+    <div class="bg-white border-x border-slate-100 overflow-hidden shadow-sm min-h-[300px]">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse whitespace-nowrap">
+                <thead class="bg-slate-50/70 text-[10px] text-slate-400 font-black uppercase tracking-wider border-b border-slate-100">
+                    <tr>
+                        <th class="px-5 py-3 w-20 text-center">Số HD</th>
+                        <th class="px-5 py-3">Khách hàng</th>
+                        <th class="px-5 py-3">Bàn vị trí</th>
+                        <th class="px-5 py-3">Thời gian vào</th>
+                        <th class="px-5 py-3 text-right">Tổng tiền</th>
+                        <th class="px-5 py-3 text-center w-36">Trạng thái đơn</th>
+                        <th class="px-5 py-3 text-right w-20">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-xs text-slate-600">
+                    @for (invoice of paginatedInvoices; track invoice.soHD) {
+                        <tr class="hover:bg-slate-50/40 transition-colors group">
+                            <td class="px-5 py-2.5 text-center font-mono font-bold text-primary">#{{ invoice.soHD }}</td>
+                            <td class="px-5 py-2.5">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-6 h-6 rounded-full bg-blue-50 text-primary flex items-center justify-center font-bold text-[10px]">
+                                        {{ getAvatarInitials(invoice.maKH) }}
+                                    </div>
+                                    <span class="font-semibold text-slate-800">{{ invoice.maKH || 'Khách lẻ' }}</span>
+                                </div>
+                            </td>
+                            <td class="px-5 py-2.5 font-medium text-slate-700">
+                                {{ invoice.soBan ? 'Bàn ' + invoice.soBan : 'Mang đi (Takeaway)' }}
+                            </td>
+                            <td class="px-5 py-2.5 text-slate-400 font-medium">
+                                {{ invoice.tgVao | date:'HH:mm dd/MM/yyyy' }}
+                            </td>
+                            <td class="px-5 py-2.5 font-black text-slate-800 text-right">
+                                {{ invoice.tongTien | number:'1.0-0' }}đ
+                            </td>
+                            <td class="px-5 py-2.5 text-center">
+                                <span class="px-2.5 py-0.5 rounded text-[10px] font-semibold inline-block uppercase tracking-tight"
+                                    [ngClass]="{
+                                        'bg-emerald-50 text-emerald-700': invoice.trangThaiHD === 'Đã thanh toán',
+                                        'bg-amber-50 text-amber-700': invoice.trangThaiHD === 'Chưa thanh toán',
+                                        'bg-rose-50 text-rose-700': invoice.trangThaiHD === 'Đã hủy'
+                                    }">
+                                    {{ invoice.trangThaiHD }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-2.5 text-right">
+                                <button [routerLink]="['/admin/hoa-don/detail', invoice.soHD]"
+                                    class="p-1 hover:bg-slate-100 rounded text-primary transition-all opacity-0 group-hover:opacity-100 cursor-pointer border-none bg-transparent"
+                                    title="Xem chi tiết đơn">
+                                    <span class="material-symbols-outlined text-base flex">visibility</span>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+
+                    @if (paginatedInvoices.length === 0) {
+                        <tr>
+                            <td colspan="7" class="text-center py-12 text-slate-400 font-medium">
+                                <span class="material-symbols-outlined text-2xl block mb-1 text-slate-300">search_off</span>
+                                Không tìm thấy hóa đơn nào phù hợp với bộ lọc.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="px-5 py-3 bg-white flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100 text-xs font-medium text-slate-500">
+            <p>
+                Hiển thị {{ filteredInvoices.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1 }} -
+                {{ math.min(currentPage * itemsPerPage, filteredInvoices.length) }} trên tổng số <span class="font-bold text-slate-800">{{ filteredInvoices.length }}</span> hóa đơn
+            </p>
+            <div class="flex items-center gap-1">
+                <button [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)"
+                    class="w-7 h-7 flex items-center justify-center border border-slate-200 rounded-lg hover:bg-slate-50 transition-all text-slate-600 disabled:opacity-30 cursor-pointer bg-white">
+                    <span class="material-symbols-outlined text-base">chevron_left</span>
+                </button>
+
+                @for (page of getPagesArray(); track page) {
+                    <button (click)="changePage(page)"
+                        class="w-7 h-7 flex items-center justify-center rounded-lg border transition-all text-xs font-semibold cursor-pointer"
+                        [ngClass]="page === currentPage ? 'bg-primary text-white border-primary font-bold shadow-sm' : 'border-transparent text-slate-500 hover:bg-slate-50'">
+                        {{ page }}
+                    </button>
+                }
+
+                <button [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)"
+                    class="w-7 h-7 flex items-center justify-center border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-30 transition-all cursor-pointer bg-white">
+                    <span class="material-symbols-outlined text-base">chevron_right</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <button routerLink="/admin/hoa-don/create"
+        class="fixed bottom-6 right-6 z-40 flex items-center gap-1.5 bg-primary text-white h-11 px-5 rounded-full shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 active:scale-95 transition-all group cursor-pointer border-none">
+        <span class="material-symbols-outlined text-lg">add</span>
+        <span class="font-bold tracking-tight text-xs">Tạo Hóa đơn mới</span>
+    </button>
+</div>

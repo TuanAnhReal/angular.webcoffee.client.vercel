@@ -1,0 +1,289 @@
+<div class="max-w-[1200px] mx-auto pb-12">
+
+    <!-- Loading skeleton -->
+    @if (isLoadingData) {
+    <div class="flex flex-col items-center justify-center py-24 gap-4">
+        <span class="material-symbols-outlined animate-spin text-[48px] text-primary">progress_activity</span>
+        <p class="text-on-surface-variant text-body-md">Đang tải dữ liệu sản phẩm...</p>
+    </div>
+
+    } @else {
+
+    <!-- Header -->
+    <div class="flex items-center gap-4 mb-8">
+        <a routerLink="/admin/san-pham"
+            class="w-10 h-10 rounded-full hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <div>
+            <h2 class="font-headline-md text-headline-md font-bold text-on-surface">
+                Cập nhật: {{ productForm.get('tenSp')?.value || 'Sản phẩm' }}
+            </h2>
+            <p class="text-body-sm text-on-surface-variant mt-1">
+                Mã sản phẩm: <span class="font-semibold text-primary">{{ maSp }}</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- ==================== CỘT TRÁI (2/3) ==================== -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- Card: Thông tin chung -->
+            <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm space-y-6">
+                <h3 class="font-title-sm text-title-sm font-bold text-on-surface border-b border-outline-variant pb-4">
+                    Thông tin chung
+                </h3>
+
+                <!-- Tên sản phẩm -->
+                <div>
+                    <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">
+                        Tên sản phẩm <span class="text-error">*</span>
+                    </label>
+                    <input type="text" formControlName="tenSp" placeholder="VD: Cà phê muối"
+                        class="w-full px-4 py-2 border rounded-lg outline-none transition-all bg-transparent" [ngClass]="productForm.get('tenSp')?.invalid && productForm.get('tenSp')?.touched
+                     ? 'border-error focus:ring-2 focus:ring-error'
+                     : 'border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary'">
+                    @if (productForm.get('tenSp')?.invalid && productForm.get('tenSp')?.touched) {
+                    <p class="text-error text-[12px] mt-1">Vui lòng nhập tên sản phẩm.</p>
+                    }
+                </div>
+
+                <!-- Danh mục + Kích thước -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- Danh mục -->
+                    <div>
+                        <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">
+                            Danh mục <span class="text-error">*</span>
+                        </label>
+                        <select formControlName="maLoaiSp"
+                            class="w-full px-4 py-2 border rounded-lg outline-none transition-all bg-transparent"
+                            [ngClass]="productForm.get('maLoaiSp')?.invalid && productForm.get('maLoaiSp')?.touched
+                        ? 'border-error focus:ring-2 focus:ring-error'
+                        : 'border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary'">
+                            <option value="">-- Chọn danh mục --</option>
+                            @for (cat of categories; track cat.maLoaiSp) {
+                            <option [value]="cat.maLoaiSp">{{ cat.tenLoaiSp }}</option>
+                            }
+                        </select>
+                        @if (productForm.get('maLoaiSp')?.invalid && productForm.get('maLoaiSp')?.touched) {
+                        <p class="text-error text-[12px] mt-1">Vui lòng chọn danh mục.</p>
+                        }
+                        <!-- Hiển thị tên danh mục đang chọn -->
+                        @if (productForm.get('maLoaiSp')?.value) {
+                        <p class="text-[11px] text-primary mt-1 font-semibold">
+                            ✓ {{ selectedCategoryName }}
+                        </p>
+                        }
+                    </div>
+
+                    <!-- Kích thước -->
+                    <div>
+                        <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">Kích thước</label>
+                        <input type="text" formControlName="kichThuoc" placeholder="VD: Size M, L, XL"
+                            class="w-full px-4 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all bg-transparent">
+                        <p class="text-[11px] text-on-surface-variant mt-1">
+                            Hiện tại: <span class="font-semibold">{{ productForm.get('kichThuoc')?.value || 'Chưa có'
+                                }}</span>
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- Mô tả -->
+                <div>
+                    <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">Mô tả sản phẩm</label>
+                    <textarea formControlName="moTa" rows="4" placeholder="Nhập mô tả hấp dẫn cho sản phẩm..."
+                        class="w-full px-4 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all bg-transparent resize-none"></textarea>
+                    <p class="text-[11px] text-on-surface-variant mt-1 text-right">
+                        {{ productForm.get('moTa')?.value?.length || 0 }} ký tự
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card: Định giá -->
+            <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm space-y-6">
+                <h3 class="font-title-sm text-title-sm font-bold text-on-surface border-b border-outline-variant pb-4">
+                    Định giá & Đơn vị
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    <!-- Giá vốn -->
+                    <div>
+                        <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">
+                            Giá vốn (VNĐ) <span class="text-error">*</span>
+                        </label>
+                        <input type="number" formControlName="giaVon" min="0"
+                            class="w-full px-4 py-2 border rounded-lg outline-none transition-all bg-transparent"
+                            [ngClass]="productForm.get('giaVon')?.invalid && productForm.get('giaVon')?.touched
+                       ? 'border-error focus:ring-2 focus:ring-error'
+                       : 'border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary'">
+                        @if (productForm.get('giaVon')?.invalid && productForm.get('giaVon')?.touched) {
+                        <p class="text-error text-[12px] mt-1">Giá vốn không hợp lệ.</p>
+                        }
+                        <p class="text-[11px] text-on-surface-variant mt-1">
+                            {{ productForm.get('giaVon')?.value | number:'1.0-0' }}đ
+                        </p>
+                    </div>
+
+                    <!-- Giá bán -->
+                    <div>
+                        <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">
+                            Giá bán (VNĐ) <span class="text-error">*</span>
+                        </label>
+                        <input type="number" formControlName="donGia" min="0"
+                            class="w-full px-4 py-2 border rounded-lg outline-none transition-all bg-transparent font-bold text-primary"
+                            [ngClass]="productForm.get('donGia')?.invalid && productForm.get('donGia')?.touched
+                       ? 'border-error focus:ring-2 focus:ring-error'
+                       : 'border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary'">
+                        @if (productForm.get('donGia')?.invalid && productForm.get('donGia')?.touched) {
+                        <p class="text-error text-[12px] mt-1">Giá bán không hợp lệ.</p>
+                        }
+                        <p class="text-[11px] text-primary font-semibold mt-1">
+                            {{ productForm.get('donGia')?.value | number:'1.0-0' }}đ
+                        </p>
+                    </div>
+
+                    <!-- Đơn vị tính -->
+                    <div>
+                        <label class="block text-body-sm font-semibold text-on-surface-variant mb-1">
+                            Đơn vị tính <span class="text-error">*</span>
+                        </label>
+                        <input type="text" formControlName="dvt"
+                            class="w-full px-4 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all bg-transparent">
+                        <p class="text-[11px] text-on-surface-variant mt-1">
+                            Hiện tại: <span class="font-semibold">{{ productForm.get('dvt')?.value || 'Chưa có'
+                                }}</span>
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- Biên lợi nhuận tính tự động -->
+                @if (productForm.get('donGia')?.value > 0 && productForm.get('giaVon')?.value > 0) {
+                <div class="mt-2 p-4 bg-surface-container-low rounded-lg flex items-center gap-4">
+                    <span class="material-symbols-outlined text-primary">trending_up</span>
+                    <div class="flex gap-6 text-body-sm">
+                        <span>Lợi nhuận:
+                            <strong class="text-primary">
+                                {{ (productForm.get('donGia')?.value - productForm.get('giaVon')?.value) |
+                                number:'1.0-0' }}đ
+                            </strong>
+                        </span>
+                        <span>Biên lợi nhuận:
+                            <strong class="text-primary">
+                                {{ ((productForm.get('donGia')?.value - productForm.get('giaVon')?.value)
+                                / productForm.get('donGia')?.value * 100) | number:'1.0-1' }}%
+                            </strong>
+                        </span>
+                    </div>
+                </div>
+                }
+            </div>
+
+        </div>
+
+        <div class="space-y-6">
+
+            <!-- Card: Hình ảnh -->
+            <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm">
+                <h3 class="font-title-sm text-title-sm font-bold text-on-surface mb-4">Hình ảnh sản phẩm</h3>
+
+                <div class="relative w-full aspect-square rounded-xl border-2 border-dashed transition-all flex flex-col items-center justify-center overflow-hidden cursor-pointer group"
+                    [ngClass]="imagePreview ? 'border-primary' : 'border-outline-variant hover:border-primary hover:bg-surface-container-low'"
+                    (click)="fileInput.value = ''; fileInput.click()"> <input #fileInput type="file" class="hidden"
+                        accept="image/*" (change)="onFileSelected($event)">
+
+                    @if (imagePreview) {
+                    <img [src]="imagePreview" alt="Preview ảnh sản phẩm"
+                        class="w-full h-full object-cover group-hover:opacity-80 transition-opacity">
+
+                    <div
+                        class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        <span
+                            class="bg-white text-primary px-4 py-2 rounded-lg font-bold text-sm shadow-lg flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">edit</span> Đổi ảnh
+                        </span>
+                    </div>
+
+                    <button type="button" (click)="removeImage(); $event.stopPropagation()"
+                        class="absolute top-2 right-2 w-8 h-8 bg-error text-white rounded-full flex items-center justify-center shadow-md hover:brightness-110 z-10">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+                    } @else {
+                    <div
+                        class="w-16 h-16 bg-primary-container bg-opacity-20 text-primary rounded-full flex items-center justify-center mb-3">
+                        <span class="material-symbols-outlined text-[32px]">cloud_upload</span>
+                    </div>
+                    <p class="font-body-sm text-body-sm font-semibold text-on-surface text-center">Nhấn để tải ảnh lên
+                    </p>
+                    <p class="text-[11px] text-on-surface-variant text-center mt-1">PNG, JPG, WEBP tối đa 5MB</p>
+                    }
+                </div>
+
+                @if (selectedFile) {
+                <p class="text-[11px] text-primary mt-2 font-semibold truncate">
+                    ✓ {{ selectedFile.name }}
+                </p>
+                } @else if (currentImageUrl) {
+                <p class="text-[11px] text-on-surface-variant mt-2 truncate">
+                    Ảnh hiện tại: {{ currentImageUrl }}
+                </p>
+                }
+            </div>
+
+            <!-- Card: Trạng thái -->
+            <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm">
+                <h3 class="font-title-sm text-title-sm font-bold text-on-surface mb-4">Trạng thái</h3>
+                <select formControlName="trangThai"
+                    class="w-full px-4 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all bg-transparent">
+                    <option value="Đang bán">Đang bán</option>
+                    <option value="Ngừng kinh doanh">Ngừng kinh doanh</option>
+                    <option value="Hết hàng">Hết hàng</option>
+                </select>
+
+                <!-- Badge trạng thái hiện tại -->
+                <div class="mt-3 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full" [ngClass]="{
+                'bg-green-500': productForm.get('trangThai')?.value === 'Đang bán',
+                'bg-red-500':   productForm.get('trangThai')?.value === 'Ngừng kinh doanh',
+                'bg-orange-500':productForm.get('trangThai')?.value === 'Hết hàng'
+              }">
+                    </span>
+                    <span class="text-[12px] font-semibold" [ngClass]="{
+                'text-green-600': productForm.get('trangThai')?.value === 'Đang bán',
+                'text-red-600':   productForm.get('trangThai')?.value === 'Ngừng kinh doanh',
+                'text-orange-600':productForm.get('trangThai')?.value === 'Hết hàng'
+              }">
+                        {{ productForm.get('trangThai')?.value }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Nút hành động -->
+            <div class="flex gap-4 pt-2">
+                <button type="button" routerLink="/admin/san-pham"
+                    class="flex-1 py-3 px-4 border border-outline-variant text-on-surface-variant font-bold rounded-lg hover:bg-surface-container-low transition-colors">
+                    Hủy bỏ
+                </button>
+                <button type="submit" [disabled]="productForm.invalid || isSubmitting"
+                    class="flex-1 py-3 px-4 bg-primary text-white font-bold rounded-lg shadow-md hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2">
+                    @if (isSubmitting) {
+                    <span class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+                    Đang lưu...
+                    } @else {
+                    <span class="material-symbols-outlined text-[20px]">save</span>
+                    Lưu sản phẩm
+                    }
+                </button>
+            </div>
+
+        </div>
+    </form>
+
+    }
+</div>

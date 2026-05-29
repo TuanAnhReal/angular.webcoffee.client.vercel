@@ -1,0 +1,131 @@
+// @use '@angular/material' as mat;
+
+// @use "tailwindcss";
+
+// html {
+//   height: 100%;
+
+//   @include mat.theme(
+//     (
+//       color: (
+//         primary: mat.$azure-palette,
+//         tertiary: mat.$blue-palette,
+//       ),
+//       typography: Roboto,
+//       density: 0,
+//     )
+//   );
+// }
+
+// body {
+//   color-scheme: light;
+//   background-color: var(--mat-sys-surface);
+//   color: var(--mat-sys-on-surface);
+//   font: var(--mat-sys-body-medium);
+
+//   margin: 0;
+//   height: 100%;
+// }
+
+@use '@angular/material' as mat;
+@use "tailwindcss";
+
+html {
+  height: 100%;
+
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+/* 1. IMPORT FONTS & ICONS CỦA TRANG MẪU */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+body {
+  color-scheme: light;
+  
+  /* Ghi đè màu nền và màu chữ Material bằng màu chuẩn của template */
+  background-color: #f7f9fb;
+  color: #191c1e;
+  
+  /* Sử dụng font Inter của template */
+  font-family: 'Inter', sans-serif;
+
+  margin: 0;
+  height: 100%;
+}
+
+/* ==========================================================================
+   2. CÁC CLASS STYLE TỪ TRANG MẪU (GIÚP HTML KHÔNG BỊ LỖI "UNKNOWN CLASS")
+   ========================================================================== */
+
+/* --- Màu nền (Backgrounds) --- */
+.bg-background { background-color: #f7f9fb; }
+.bg-surface-bright { background-color: #f7f9fb; }
+.bg-surface-container-lowest { background-color: #ffffff; }
+.bg-surface-container-low { background-color: #f2f4f6; }
+.bg-surface-container-high { background-color: #e6e8ea; }
+.bg-surface-dim { background-color: #d8dadc; }
+
+/* --- Màu chủ đạo & Lỗi (Primary & Error) --- */
+.bg-primary { background-color: #0058be; }
+.bg-primary-container { background-color: #2170e4; }
+.bg-error { background-color: #ba1a1a; }
+
+/* --- Màu chữ (Text Colors) --- */
+.text-on-surface { color: #191c1e; }
+.text-on-surface-variant { color: #424754; }
+.text-primary { color: #0058be; }
+.text-on-primary { color: #ffffff; }
+.text-on-error { color: #ffffff; }
+
+/* --- Màu viền (Borders) --- */
+.border-outline-variant { border-color: #c2c6d6; }
+.border-outline { border-color: #727785; }
+
+/* --- Khoảng cách (Spacing) --- */
+.p-container-padding { padding: 24px; }
+.px-container-padding { padding-left: 24px; padding-right: 24px; }
+.py-gutter { padding-top: 16px; padding-bottom: 16px; }
+.gap-gutter { gap: 16px; }
+
+/* --- Kích thước chữ (Typography) --- */
+.text-display-lg { font-size: 36px; line-height: 44px; letter-spacing: -0.02em; }
+.text-headline-md { font-size: 24px; line-height: 32px; letter-spacing: -0.01em; }
+.text-title-sm { font-size: 18px; line-height: 28px; }
+.text-body-md { font-size: 14px; line-height: 20px; }
+.text-body-sm { font-size: 13px; line-height: 18px; }
+.text-label-caps { font-size: 12px; line-height: 16px; letter-spacing: 0.05em; text-transform: uppercase; }
+
+.font-display-lg, .font-headline-md, .font-title-sm, .font-body-md, .font-body-sm, .font-label-caps {
+  font-family: 'Inter', sans-serif;
+}
+
+/* --- Hiệu ứng đổ bóng (Shadows) --- */
+.card-shadow { 
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04); 
+}
+
+/* --- Cấu hình Icon Material --- */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  vertical-align: middle;
+}
+/* --- Custom scrollbar cho Data Table --- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d8dadc; border-radius: 10px; }
+
+.font-variation-fill {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+

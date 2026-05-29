@@ -1,0 +1,31 @@
+<div class="flex justify-between items-center h-full px-6 bg-white">
+
+  <div class="relative w-60">
+    <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+    <input
+      class="w-full pl-8 pr-3 h-8 bg-slate-50 border border-slate-200/60 rounded-lg text-xs outline-none focus:ring-1 focus:ring-primary focus:border-primary focus:bg-white transition-all duration-200"
+      placeholder="Tìm nhanh tác vụ..." type="text" />
+  </div>
+
+  <div class="flex items-center gap-4">
+    <button class="relative text-slate-400 hover:text-primary transition-colors cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-50">
+      <span class="material-symbols-outlined text-xl">notifications</span>
+      <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+    </button>
+
+    <div class="h-5 w-[1px] bg-slate-200"></div>
+
+    <div class="flex items-center gap-4">
+      <a routerLink="/admin/profile" class="hover:opacity-80 transition-opacity flex items-center" title="Xem thông tin">
+        <app-avatar [name]="displayName" size="sm" />
+      </a>
+
+      <button (click)="logout()"
+        class="flex items-center justify-center w-8 h-8 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-all cursor-pointer"
+        title="Đăng xuất hệ thống">
+        <span class="material-symbols-outlined text-md">logout</span>
+      </button>
+    </div>
+  </div>
+
+</div>

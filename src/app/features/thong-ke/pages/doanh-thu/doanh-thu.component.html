@@ -1,0 +1,431 @@
+<header class="h-20 fixed top-0 right-0 left-[260px] z-30 bg-white/80 backdrop-blur-md border-b border-slate-200/60 flex items-center justify-between px-8 transition-colors">
+  <div class="flex items-center gap-4">
+    <div class="flex flex-col">
+      <h2 class="text-sm font-semibold text-slate-900 tracking-tight">Doanh thu hệ thống</h2>
+      <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium mt-0.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+        <span>Financial Ledger (Real-time)</span>
+      </div>
+    </div>
+    <div class="h-5 w-px bg-slate-200 mx-1"></div>
+    <div class="bg-slate-50 px-2.5 py-1 rounded-md border border-slate-200/50">
+      <span class="text-[11px] font-medium text-slate-600">Phạm vi: <b class="text-slate-800">Tổng hợp hệ thống</b></span>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-3">
+    <div class="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/80">
+      <button (click)="thayDoiBoLoc('ngay')"
+        [ngClass]="loaiBoLoc() === 'ngay' ? 'bg-white shadow-xs text-slate-900 font-semibold' : 'text-slate-500 hover:text-slate-800'"
+        class="px-3 py-1 rounded-md text-xs font-medium transition-all cursor-pointer">
+        Hôm nay
+      </button>
+      <button (click)="thayDoiBoLoc('thang')"
+        [ngClass]="loaiBoLoc() === 'thang' ? 'bg-white shadow-xs text-slate-900 font-semibold' : 'text-slate-500 hover:text-slate-800'"
+        class="px-3 py-1 rounded-md text-xs font-medium transition-all cursor-pointer">
+        Tháng này
+      </button>
+      <button (click)="thayDoiBoLoc('nam')"
+        [ngClass]="loaiBoLoc() === 'nam' ? 'bg-white shadow-xs text-slate-900 font-semibold' : 'text-slate-500 hover:text-slate-800'"
+        class="px-3 py-1 rounded-md text-xs font-medium transition-all cursor-pointer">
+        Năm nay
+      </button>
+    </div>
+
+    <button (click)="taiDuLieuThongKe()"
+      class="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition-all cursor-pointer bg-white shadow-xs">
+      <span class="material-symbols-outlined text-base">refresh</span> Làm mới
+    </button>
+
+    <button (click)="xuatBaoCaoExcel()"
+      class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 transition-all cursor-pointer shadow-xs">
+      <span class="material-symbols-outlined text-base">download</span> Xuất dữ liệu
+    </button>
+  </div>
+</header>
+
+<main class="pt-28 px-8 pb-12 bg-[#fafafa] min-h-screen">
+  
+  @if (dangTai()) {
+    <div class="space-y-6 animate-pulse">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        @for (i of [1,2,3,4]; track $index) {
+          <div class="h-28 bg-white border border-slate-200/60 rounded-xl p-5 space-y-3">
+            <div class="h-3 bg-slate-200 rounded w-1/4"></div>
+            <div class="h-6 bg-slate-200 rounded w-1/2"></div>
+          </div>
+        }
+      </div>
+      <div class="h-80 bg-white border border-slate-200/60 rounded-xl"></div>
+    </div>
+  } @else {
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      
+      <div class="bg-white p-5 rounded-xl border border-slate-200/60 shadow-xs flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-medium tracking-tight">Doanh thu thuần</span>
+            <span [ngClass]="thongKeKyTruoc().tyLe >= 0 ? 'text-emerald-700 bg-emerald-50' : 'text-rose-700 bg-rose-50'" 
+                  class="text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
+              <span class="material-symbols-outlined text-xs">{{ thongKeKyTruoc().tyLe >= 0 ? 'trending_up' : 'trending_down' }}</span>
+              {{ thongKeKyTruoc().tyLe >= 0 ? '+' : '' }}{{ thongKeKyTruoc().tyLe }}%
+            </span>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 tracking-tight">{{ tongDoanhThu() | number:'1.0-0' }}đ</h3>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-3 font-medium">{{ thongKeKyTruoc().label }}: <span class="text-slate-600">{{ thongKeKyTruoc().doanhThuKyTruoc | number:'1.0-0' }}đ</span></p>
+      </div>
+
+      <div class="bg-white p-5 rounded-xl border border-slate-200/60 shadow-xs flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-medium tracking-tight">Hóa đơn hoàn tất</span>
+            <span class="material-symbols-outlined text-base">receipt_long</span>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 tracking-tight">{{ tongDonHang() | number }} <span class="text-xs font-normal text-slate-400">giao dịch</span></h3>
+        </div>
+        <p class="text-[11px] text-emerald-600 font-medium mt-3 flex items-center gap-1">
+          <span class="w-1 h-1 rounded-full bg-emerald-500"></span> Hệ thống vận hành liền mạch
+        </p>
+      </div>
+
+      <div class="bg-white p-5 rounded-xl border border-slate-200/60 shadow-xs flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-medium tracking-tight">Giá trị đơn trung vị</span>
+            <span class="material-symbols-outlined text-base">equalizer</span>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 tracking-tight">{{ giaTriDonTrungVi() | number:'1.0-0' }}đ</h3>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-3 font-medium">Bình quân (AOV): <span class="text-slate-600">{{ giaTriDonTrungBinh() | number:'1.0-0' }}đ</span></p>
+      </div>
+
+      <div class="bg-slate-900 p-5 rounded-xl shadow-xs text-white flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-[10px] font-bold tracking-wider uppercase text-blue-400">Xu hướng doanh thu</span>
+            <span class="material-symbols-outlined text-base text-blue-400">monitoring</span>
+          </div>
+          <h3 class="text-xl font-bold tracking-tight text-white">{{ xuThuongDoanhThuUocTinh() | number:'1.0-0' }}đ</h3>
+        </div>
+        <p class="text-[10px] text-slate-400 mt-3 font-medium">Ước lượng dựa trên Moving Average 7 ngày gần nhất</p>
+      </div>
+    </div>
+
+    @if (tongDonHang() === 0) {
+      <div class="bg-white rounded-xl p-16 text-center border border-dashed border-slate-200 flex flex-col items-center justify-center space-y-2 shadow-xs mb-8">
+        <span class="material-symbols-outlined text-4xl text-slate-300">data_exploration</span>
+        <h4 class="text-xs font-semibold text-slate-800">Không tìm thấy bản ghi dòng tiền phát sinh</h4>
+        <p class="text-[11px] text-slate-400 max-w-sm">Dữ liệu tài chính chỉ ghi nhận các hóa đơn ở trạng thái "Đã thanh toán" hoặc "Hoàn thành" trong chu kỳ lọc.</p>
+      </div>
+    } @else {
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        
+        <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200/60 shadow-xs flex flex-col justify-between relative group">
+          <div>
+            <div class="flex items-center justify-between mb-0.5">
+              <h4 class="text-xs font-semibold text-slate-900 tracking-tight">Biến động dòng tiền chu kỳ thời gian thực</h4>
+              <span class="text-[10px] text-slate-400">Đơn vị: VNĐ</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mb-4">Trực quan lịch sử doanh thu tích lũy cận kề</p>
+          </div>
+          
+          <div class="h-44 w-full relative mt-1">
+            <svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 1000 200">
+              <defs>
+                <linearGradient id="areaFinancialGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#2563eb" stop-opacity="0.08" />
+                  <stop offset="100%" stop-color="#2563eb" stop-opacity="0.0" />
+                </linearGradient>
+              </defs>
+              <line stroke="#f1f5f9" stroke-width="1" x1="40" x2="940" y1="40" y2="40"/>
+              <line stroke="#f1f5f9" stroke-width="1" x1="40" x2="940" y1="105" y2="105"/>
+              <line stroke="#f1f5f9" stroke-width="1" x1="40" x2="940" y1="170" y2="170"/>
+
+              <path [attr.d]="toadoDoThiTuyen().chuoiAreaPath" fill="url(#areaFinancialGrad)" />
+              <path [attr.d]="toadoDoThiTuyen().chuoiPath" fill="none" stroke="#2563eb" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+              
+              @for (x of toadoDoThiTuyen().toaDoX; track $index; let i = $index) {
+                <g class="cursor-pointer" (mouseenter)="activeBar.set(i)" (mouseleave)="activeBar.set(null)">
+                  @if (activeBar() === i) {
+                    <circle [attr.cx]="x" [attr.cy]="toadoDoThiTuyen().diemY[i]" r="8" fill="#2563eb" fill-opacity="0.12" />
+                  }
+                  <circle [attr.cx]="x" [attr.cy]="toadoDoThiTuyen().diemY[i]" [attr.r]="activeBar() === i ? 4.5 : 3.5" 
+                          [attr.fill]="activeBar() === i ? '#2563eb' : 'white'" stroke="#2563eb" stroke-width="2" />
+                </g>
+              }
+            </svg>
+
+            @if (activeBar() !== null && chartFinancialRef) {
+              <div class="absolute bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded shadow-md -top-7 z-20 pointer-events-none -translate-x-1/2 transition-transform"
+                   [style.left.px]="toadoDoThiTuyen().toaDoX[activeBar()!] * (chartFinancialRef.offsetWidth / 1000)">
+                {{ toadoDoThiTuyen().mangGiaTri[activeBar()!] | number }}đ
+              </div>
+            }
+          </div>
+
+          <div #chartFinancialRef class="flex justify-between px-2 mt-2 text-[10px] font-medium text-slate-400 border-t border-slate-100 pt-2.5">
+            @for (nhan of toadoDoThiTuyen().nhanNgay; track $index; let isLast = $last) {
+              <span [ngClass]="isLast ? 'text-blue-600 font-bold' : ''">{{ nhan }} {{ isLast ? '(Nay)' : '' }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200/60 shadow-xs flex flex-col justify-between">
+          <div>
+            <h4 class="text-xs font-semibold text-slate-900 tracking-tight mb-0.5">Tỷ trọng ngành hàng thực tế</h4>
+            <p class="text-[11px] text-slate-400 mb-3">Phân bổ nguồn thu động từ API loại sản phẩm</p>
+          </div>
+
+          <div class="space-y-3.5 my-auto overflow-y-auto max-h-[180px] pr-0.5">
+            @for (nganh of thongKeNganhHangDong(); track nganh.maLoaiSp) {
+              <div>
+                <div class="flex items-center justify-between text-[11px] mb-1">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="w-2 h-2 rounded-full flex-shrink-0" [style.backgroundColor]="nganh.mauSac"></span>
+                    <span class="font-medium text-slate-700 truncate">{{ nganh.tenLoaiSp }}</span>
+                  </div>
+                  <div class="text-right flex-shrink-0">
+                    <span class="font-bold text-slate-900">{{ nganh.tongDoanhThu | number:'1.0-0' }}đ</span>
+                    <span class="text-slate-400 text-[10px] ml-1">({{ nganh.phanTramDoanhThu }}%)</span>
+                  </div>
+                </div>
+                <div class="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full" [style.width.%]="nganh.phanTramDoanhThu" [style.backgroundColor]="nganh.mauSac"></div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="border-t border-slate-100 pt-2 flex items-center justify-between text-[10px] text-slate-400 font-medium">
+            <span>Ngành dẫn đầu kinh doanh:</span>
+            <span class="font-bold text-blue-600 bg-blue-50/60 border border-blue-100 px-1.5 py-0.2 rounded">
+              {{ hieuSuatNganhHangSummary().caoNhat?.tenLoaiSp ?? 'N/A' }} ({{ hieuSuatNganhHangSummary().caoNhat?.phanTramDoanhThu }}%)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        
+        <div class="bg-white p-5 rounded-xl border border-slate-200/60 shadow-xs flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between mb-0.5">
+              <h4 class="text-xs font-semibold text-slate-900 tracking-tight">Mật độ dòng đơn & Doanh thu theo giờ</h4>
+              <span class="text-[10px] bg-slate-50 px-1.5 py-0.2 text-slate-600 font-bold border border-slate-200/60 rounded">Peak: {{ thongKeLuuLuongGioNangCao().gioVangKinhDoanh }}</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mb-4">Mật độ tải tính theo đầu hóa đơn thực tế phát sinh</p>
+          </div>
+
+          <div class="h-32 flex items-end justify-between gap-1 border-b border-slate-100 pb-0.5 relative">
+            @for (cao of thongKeLuuLuongGioNangCao().mangCotChieuCao; track $index; let i = $index) {
+              <div class="flex-1 flex flex-col items-center gap-2 group/bar relative h-full justify-end"
+                   (mouseenter)="activeHourBar.set(i)" (mouseleave)="activeHourBar.set(null)">
+                <div [style.height.%]="cao" 
+                     [ngClass]="cao >= 80 ? 'bg-blue-600' : 'bg-slate-200 group-hover/bar:bg-blue-400'" 
+                     class="w-full rounded-t-xs transition-all duration-150"></div>
+              </div>
+            }
+            
+            @if (activeHourBar() !== null) {
+              <div class="absolute bg-slate-900 text-white text-[9px] px-2 py-1 rounded shadow-lg -top-9 left-1/2 -translate-x-1/2 pointer-events-none z-30 font-medium text-center">
+                <p class="font-bold text-blue-400">{{ thongKeLuuLuongGioNangCao().nhanKhungGio[activeHourBar()!] }}h:00</p>
+                <p>{{ thongKeLuuLuongGioNangCao().mangSoLuongDon[activeHourBar()!] }} đơn | {{ thongKeLuuLuongGioNangCao().mangDoanhThuGio[activeHourBar()!] | number }}đ</p>
+              </div>
+            }
+          </div>
+          <div class="flex justify-between text-[9px] font-bold text-slate-400 pt-1.5 px-0.5">
+            <span>07h sáng</span>
+            <span>12h trưa</span>
+            <span>17h chiều</span>
+            <span>22h đêm</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200/60 shadow-xs flex flex-col justify-between">
+          <div>
+            <h4 class="text-xs font-semibold text-slate-900 tracking-tight mb-0.5">Cơ cấu loại hình đặt hàng</h4>
+            <p class="text-[11px] text-slate-400 mb-5">Phân tách kênh phục vụ dựa vào cấu trúc mã bàn</p>
+          </div>
+
+          <div class="space-y-4 my-auto">
+            <div>
+              <div class="flex justify-between text-[11px] text-slate-600 mb-1">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-slate-800"></span>Tại Quán</span>
+                <span class="font-bold text-slate-900">{{ phanTichKhachHang().taiQuan }} đơn <b class="text-slate-400 font-normal">({{ phanTichKhachHang().phanTramTaiQuan }}%)</b></span>
+              </div>
+              <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-full bg-slate-800 rounded-full" [style.width.%]="phanTichKhachHang().phanTramTaiQuan"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-[11px] text-slate-600 mb-1">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500"></span>Mang đi / Giao hàng</span>
+                <span class="font-bold text-slate-900">{{ phanTichKhachHang().mangDi }} đơn <b class="text-slate-400 font-normal">({{ phanTichKhachHang().phanTramMangDi }}%)</b></span>
+              </div>
+              <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-full bg-amber-500 rounded-full" [style.width.%]="phanTichKhachHang().phanTramMangDi"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-50 border border-slate-100 rounded-lg p-2.5 text-[10px] text-slate-400 font-medium">
+            ℹ️ Hệ thống tự động chuẩn hóa dữ liệu trống hoặc bất thường về kênh "Mang đi".
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200/60 shadow-xs flex flex-col justify-between">
+          <div>
+            <h4 class="text-xs font-semibold text-slate-900 tracking-tight mb-0.5">Chất lượng xử lý giao dịch</h4>
+            <p class="text-[11px] text-slate-400 mb-4">Đo lường rủi ro hệ thống và tỷ lệ sụt giảm hóa đơn</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 my-auto">
+            <div class="bg-slate-50/60 p-2.5 rounded-lg border border-slate-100">
+              <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">Tỷ lệ hủy đơn</span>
+              <span [ngClass]="phanTichVanHanh().tyLeHuy > 5 ? 'text-rose-600' : 'text-slate-800'" class="text-base font-bold">{{ phanTichVanHanh().tyLeHuy }}%</span>
+              <p class="text-[9px] text-slate-400 mt-0.5">{{ phanTichVanHanh().daHuy }} mã hủy đơn</p>
+            </div>
+
+            <div class="bg-slate-50/60 p-2.5 rounded-lg border border-slate-100">
+              <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">Về đích hoàn tất</span>
+              <span class="text-emerald-600 text-base font-bold">{{ phanTichVanHanh().tyLeThanhCong }}%</span>
+              <p class="text-[9px] text-slate-400 mt-0.5">{{ phanTichVanHanh().thanhCong }} hóa đơn thu tiền</p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-[11px] border-t border-slate-100 pt-2 mt-2 font-medium text-slate-400">
+            <span>Tổng lượng đầu đơn phát sinh trong kỳ:</span>
+            <span class="font-bold text-slate-800">{{ phanTichVanHanh().tongHoaDonKyNay }} đơn</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        
+        <div class="bg-white p-5 rounded-xl border border-slate-200/60 shadow-xs">
+          <div class="flex items-center justify-between mb-3.5">
+            <h4 class="text-xs font-semibold text-slate-900 tracking-tight">Top 5 sản phẩm đạt sản lượng lớn nhất</h4>
+            <span class="text-[10px] text-slate-400 font-medium">Theo sản lượng ly</span>
+          </div>
+          <div class="space-y-2">
+            @for (mon of topSanPhamBanChay(); track mon.maSp; let i = $index) {
+              <div class="flex items-center justify-between p-2 rounded-lg border border-slate-50 hover:bg-slate-50 transition-colors">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="w-6 h-6 rounded bg-slate-100 text-slate-800 flex items-center justify-center font-bold text-[11px] flex-shrink-0">#{{ i + 1 }}</span>
+                  <div class="truncate">
+                    <h5 class="text-xs font-bold text-slate-900 truncate">{{ mon.tenSp }}</h5>
+                    <span class="text-[9px] font-medium text-slate-400 bg-slate-100 px-1 rounded border border-slate-200/40 inline-block">{{ mon.tenLoaiSp }}</span>
+                  </div>
+                </div>
+                <div class="text-right flex-shrink-0">
+                  <span class="text-xs font-bold text-blue-600 block">{{ mon.soLuongBan | number }} ly</span>
+                  <span class="text-[9px] text-slate-400">{{ mon.tongDoanhThuMon | number:'1.0-0' }}đ</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200/60 shadow-xs">
+          <div class="flex items-center justify-between mb-3.5">
+            <h4 class="text-xs font-semibold text-slate-900 tracking-tight">Top 5 sản phẩm kéo dòng tiền lớn nhất</h4>
+            <span class="text-[10px] text-slate-400 font-medium">Theo doanh thu gốc</span>
+          </div>
+          <div class="space-y-2">
+            @for (mon of topSanPhamDoanhThuCao(); track mon.maSp; let i = $index) {
+              <div class="flex items-center justify-between p-2 rounded-lg border border-slate-50 hover:bg-slate-50 transition-colors">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="w-6 h-6 rounded bg-slate-900 text-white flex items-center justify-center font-bold text-[11px] flex-shrink-0">#{{ i + 1 }}</span>
+                  <div class="truncate">
+                    <h5 class="text-xs font-bold text-slate-900 truncate">{{ mon.tenSp }}</h5>
+                    <span class="text-[9px] font-medium text-slate-400 bg-slate-100 px-1 rounded border border-slate-200/40 inline-block">{{ mon.tenLoaiSp }}</span>
+                  </div>
+                </div>
+                <div class="text-right flex-shrink-0">
+                  <span class="text-xs font-bold text-slate-900 block">{{ mon.tongDoanhThuMon | number:'1.0-0' }}đ</span>
+                  <span class="text-[9px] text-emerald-600 font-medium">{{ mon.soLuongBan }} ly đã bán</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200/60 shadow-xs overflow-hidden mb-8">
+        <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h4 class="text-xs font-semibold text-slate-900 tracking-tight">Báo cáo hiệu suất danh mục tổng thể</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">Bảng phân rã chi tiết hiệu năng bán, phân loại và doanh thu gộp</p>
+          </div>
+          <div class="relative w-full sm:w-60">
+            <input [ngModel]="tuKhoaTimKiem()" (ngModelChange)="tuKhoaTimKiem.set($event); trangHienTai.set(1)"
+              type="text" placeholder="Tìm kiếm nhanh sản phẩm hoặc ngành..."
+              class="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:border-slate-400 transition-colors bg-slate-50/50"/>
+            <span class="material-symbols-outlined absolute left-2.5 top-2 text-slate-400 text-base">search</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-slate-50/80 text-[10px] text-slate-400 font-bold uppercase tracking-wider sticky top-0 border-b border-slate-100 z-10 backdrop-blur-xs">
+              <tr>
+                <th class="px-5 py-3 font-semibold text-slate-500">Mặt hàng kinh doanh</th>
+                <th (click)="thayDoiSort('danhMuc')" class="px-5 py-3 font-semibold text-slate-500 cursor-pointer hover:bg-slate-100 transition-colors">
+                  <div class="flex items-center gap-1">Ngành hàng @if (tieuChiSort() === 'danhMuc') { <span>{{ huongSort() === 'asc' ? '▲' : '▼' }}</span> }</div>
+                </th>
+                <th (click)="thayDoiSort('soLuong')" class="px-5 py-3 font-semibold text-slate-500 text-right cursor-pointer hover:bg-slate-100 transition-colors">
+                  <div class="flex items-center justify-end gap-1">Sản lượng bán @if (tieuChiSort() === 'soLuong') { <span>{{ huongSort() === 'asc' ? '▲' : '▼' }}</span> }</div>
+                </th>
+                <th (click)="thayDoiSort('doanhThu')" class="px-5 py-3 font-semibold text-slate-500 text-right cursor-pointer hover:bg-slate-100 transition-colors">
+                  <div class="flex items-center justify-end gap-1">Doanh thu gộp @if (tieuChiSort() === 'doanhThu') { <span>{{ huongSort() === 'asc' ? '▲' : '▼' }}</span> }</div>
+                </th>
+                <th class="px-5 py-3 font-semibold text-slate-500 text-center">Trạng thái định vị</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-xs text-slate-600">
+              @for (m of danhSachBangPhanTrang(); track m.maSp) {
+                <tr class="hover:bg-slate-50/50 transition-colors group">
+                  <td class="px-5 py-3 font-medium text-slate-900">{{ m.tenSp }}</td>
+                  <td class="px-5 py-3 text-slate-400">{{ m.tenLoaiSp }}</td>
+                  <td class="px-5 py-3 text-right font-semibold text-blue-600">{{ m.soLuongBan | number }} ly</td>
+                  <td class="px-5 py-3 text-right font-bold text-slate-800">{{ m.tongDoanhThuMon | number:'1.0-0' }}đ</td>
+                  <td class="px-5 py-3 text-center">
+                    <span [ngClass]="m.soLuongBan >= 15 ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-slate-50 text-slate-400 border-slate-100'"
+                          class="px-2 py-0.5 rounded text-[10px] font-bold border">
+                      {{ m.soLuongBan >= 15 ? '🔥 Bán chạy' : 'Ổn định' }}
+                    </span>
+                  </td>
+                </tr>
+              }
+              @if (danhSachBangHienThi().length === 0) {
+                <tr>
+                  <td colspan="5" class="px-5 py-10 text-center text-slate-400">
+                    <span class="material-symbols-outlined text-xl block mb-0.5 text-slate-300">search_off</span>
+                    Không tìm thấy dữ liệu khớp từ khóa điều tra
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-3 bg-slate-50/60 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 font-medium">
+          <span>Trang <b class="text-slate-700">{{ trangHienTai() }}</b> / <b class="text-slate-700">{{ tongSoTrangBang() }}</b></span>
+          <div class="flex items-center gap-1.5">
+            <button (click)="chuyenTrang(-1)" [disabled]="trangHienTai() === 1" 
+                    class="px-2 py-1 rounded-md border border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none cursor-pointer">Trước</button>
+            <button (click)="chuyenTrang(1)" [disabled]="trangHienTai() === tongSoTrangBang()" 
+                    class="px-2 py-1 rounded-md border border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none cursor-pointer">Sau</button>
+          </div>
+        </div>
+      </div>
+
+    }
+  }
+</main>

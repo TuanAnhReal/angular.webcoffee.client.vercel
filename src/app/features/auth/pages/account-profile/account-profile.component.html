@@ -1,0 +1,181 @@
+<main class="max-w-6xl mx-auto pb-24 px-4">
+    @if (isLoading) {
+    <div class="flex justify-center items-center py-20">
+        <span class="material-symbols-outlined animate-spin text-[40px] text-primary">progress_activity</span>
+    </div>
+    } @else {
+    <div class="mb-8">
+        <h2 class="font-headline-md text-headline-md text-primary mb-1">Thông tin tài khoản</h2>
+        <p class="text-secondary body-md">Cập nhật thông tin cá nhân và cài đặt của bạn.</p>
+    </div>
+
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+
+        <div class="lg:col-span-2 space-y-6">
+            <section class="bg-surface-container-lowest p-6 rounded-lg border border-outline-variant shadow-sm">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="font-title-sm text-title-sm flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">person</span>
+                        Hồ sơ cá nhân
+                    </h3>
+                    <span
+                        class="px-3 py-1 bg-primary-container text-on-primary-container text-xs rounded-full font-bold">
+                        Mã: {{ currentUser?.maNV }}
+                    </span>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-8 items-start">
+                    <div class="flex-shrink-0 flex flex-col items-center gap-3">
+                        <div class="relative group">
+                            <img [src]="avatarPreview" alt="Avatar"
+                                class="w-32 h-32 rounded-lg object-cover border-4 border-surface-container">
+                            <label
+                                class="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                for="avatar-upload">
+                                <span class="material-symbols-outlined">photo_camera</span>
+                            </label>
+                            <input (change)="onAvatarChange($event)" class="hidden" id="avatar-upload" type="file"
+                                accept="image/*" />
+                        </div>
+                        <span class="text-[11px] text-outline text-center">Tải lên ảnh mới<br />Tối đa 2MB.</span>
+                    </div>
+
+                    <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                        <div class="space-y-1">
+                            <label class="text-body-sm font-semibold text-secondary">Họ nhân viên <span
+                                    class="text-error">*</span></label>
+                            <input formControlName="hoNV"
+                                class="w-full border border-outline-variant rounded px-3 py-2 text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                                type="text" placeholder="Họ và tên đệm" />
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-body-sm font-semibold text-secondary">Tên nhân viên <span
+                                    class="text-error">*</span></label>
+                            <input formControlName="tenNV"
+                                class="w-full border border-outline-variant rounded px-3 py-2 text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                                type="text" placeholder="Tên chính" />
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-body-sm font-semibold text-secondary">Số điện thoại <span
+                                    class="text-error">*</span></label>
+                            <input formControlName="soDTNV"
+                                class="w-full border border-outline-variant rounded px-3 py-2 text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                                type="text" />
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-body-sm font-semibold text-secondary">Số CCCD</label>
+                            <input formControlName="soCCCD"
+                                class="w-full border border-outline-variant bg-surface-container rounded px-3 py-2 text-body-md text-outline cursor-not-allowed"
+                                type="text" />
+                        </div>
+                        <div class="space-y-1 md:col-span-2">
+                            <label class="text-body-sm font-semibold text-secondary">Địa chỉ liên hệ</label>
+                            <input formControlName="diaChiNV_TT"
+                                class="w-full border border-outline-variant rounded px-3 py-2 text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                                type="text" />
+                        </div>
+                        <div class="space-y-1 md:col-span-2">
+                            <label class="text-body-sm font-semibold text-secondary">Vai trò phân quyền</label>
+                            <input formControlName="roleDisplay"
+                                class="w-full border border-outline-variant bg-surface-container rounded px-3 py-2 text-body-md text-outline font-bold cursor-not-allowed"
+                                type="text" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-surface-container-lowest p-6 rounded-lg border border-outline-variant shadow-sm">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="font-title-sm text-title-sm flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">devices</span>
+                        Quản lý phiên đăng nhập
+                    </h3>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4 p-4 rounded bg-surface-bright border border-outline-variant">
+                        <span class="material-symbols-outlined text-secondary scale-125">desktop_windows</span>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2">
+                                <p class="font-semibold text-body-md">Chrome trên Windows 11</p>
+                                <span
+                                    class="px-2 py-0.5 bg-secondary-container text-on-secondary-container text-[10px] rounded uppercase font-bold">Hiện
+                                    tại</span>
+                            </div>
+                            <p class="text-[11px] text-secondary">Hệ thống ghi nhận hoạt động an toàn từ IP của bạn.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="space-y-6">
+
+            <section class="bg-primary-container text-on-primary-container p-6 rounded-lg border-none shadow-sm">
+                <h4 class="font-bold text-body-md mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined">verified_user</span>
+                    Trạng thái tài khoản
+                </h4>
+                <div class="space-y-3">
+                    <div class="flex justify-between text-body-sm">
+                        <span>Độ bảo mật:</span>
+                        <span class="font-bold">Mạnh</span>
+                    </div>
+                    <div class="w-full bg-white/20 h-2 rounded-full overflow-hidden">
+                        <div class="bg-white h-full w-[85%]"></div>
+                    </div>
+                    <p class="text-[11px] opacity-80 mt-2">Tài khoản nhân viên hoạt động. Dữ liệu được mã hóa bảo mật
+                        toàn vẹn.</p>
+                </div>
+            </section>
+
+            <section class="bg-surface-container-lowest p-6 rounded-lg border border-outline-variant shadow-sm">
+                <h4
+                    class="font-title-sm text-title-sm flex items-center gap-2 border-b border-outline-variant pb-3 mb-4">
+                    <span class="material-symbols-outlined text-primary">security</span>
+                    Bảo mật tài khoản
+                </h4>
+                <div class="space-y-4">
+                    <div>
+                        <p class="font-semibold text-body-md text-on-surface">Thay đổi mật khẩu</p>
+                        <p class="text-body-sm text-secondary mt-1 mb-4">Bạn nên chủ động đổi mật khẩu định kỳ để bảo vệ
+                            tài nguyên hệ thống.</p>
+                    </div>
+
+                    <button routerLink="/admin/change-password" type="button"
+                        class="w-full justify-center px-4 py-2.5 border border-outline-variant text-body-sm font-bold rounded hover:bg-surface-container-low transition-colors cursor-pointer flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">lock_reset</span>
+                        Cập nhật mật khẩu mới
+                    </button>
+                </div>
+            </section>
+
+        </div>
+
+        <!--  -->
+        <div
+            class="fixed bottom-0 right-0 left-0 ml-[260px] bg-surface-container-lowest border-t border-outline-variant p-4 flex justify-end gap-3 z-30">
+            <button routerLink="/admin/dashboard" type="button"
+                class="px-6 py-2.5 border border-outline-variant text-body-md font-bold rounded hover:bg-surface-container-low transition-colors cursor-pointer">
+                Hủy bỏ
+            </button>
+            <button type="submit" [disabled]="isSaving || profileForm.invalid"
+                class="px-8 py-2.5 bg-primary text-on-primary text-body-md font-bold rounded hover:brightness-110 shadow-lg shadow-primary/20 transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer">
+                @if(isSaving) {
+                <span class="material-symbols-outlined animate-spin">progress_activity</span> Đang lưu...
+                } @else {
+                <span class="material-symbols-outlined">save</span> Lưu thay đổi
+                }
+            </button>
+        </div>
+    </form>
+    }
+</main>
+
+<div class="fixed top-20 right-8 transition-transform duration-300 bg-surface-container-highest border-l-4 border-primary px-6 py-4 rounded shadow-xl z-50 flex items-center gap-3"
+    [ngClass]="showToast ? 'translate-x-0' : 'translate-x-[200%]'">
+    <span class="material-symbols-outlined text-primary">check_circle</span>
+    <div>
+        <p class="font-bold text-body-md">Đã cập nhật!</p>
+        <p class="text-body-sm text-secondary">Thông tin của bạn đã được lưu thành công.</p>
+    </div>
+</div>

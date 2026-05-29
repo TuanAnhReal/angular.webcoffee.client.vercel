@@ -1,0 +1,68 @@
+<main class="p-6 max-w-7xl mx-auto pb-24">
+    <div class="flex justify-between items-center mb-6 border-b border-outline-variant pb-4">
+        <div>
+            <h2 class="font-headline-md text-headline-md text-primary flex items-center gap-2 font-bold">
+                <span class="material-symbols-outlined text-[28px]">receipt_long</span>
+                Danh sách Đơn hàng chờ pha chế
+            </h2>
+            <p class="text-secondary text-body-md mt-1">Bảng tổng hợp các hóa đơn chưa thanh toán phát sinh trong ngày hôm nay.</p>
+        </div>
+        <button (click)="loadTodayInvoices()" class="flex items-center gap-2 px-4 py-2 bg-surface-container border border-outline-variant text-on-surface hover:bg-surface-container-high transition-colors font-semibold rounded-lg shadow-sm cursor-pointer">
+            <span class="material-symbols-outlined">refresh</span> Làm mới bảng
+        </button>
+    </div>
+
+    @if (isLoading) {
+        <div class="flex justify-center items-center py-24">
+            <span class="material-symbols-outlined animate-spin text-[48px] text-primary">progress_activity</span>
+        </div>
+    } @else {
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-low text-body-sm font-bold text-secondary border-b border-outline-variant">
+                        <th class="p-4 w-28">Mã Hóa Đơn</th>
+                        <th class="p-4 w-24">Số Bàn</th>
+                        <th class="p-4 w-32">Giờ Vào</th>
+                        <th class="p-4">Ghi Chú Đơn</th>
+                        <th class="p-4 w-36">Trạng Thái</th>
+                        <th class="p-4 w-32 text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant text-body-md text-on-surface">
+                    @if (todayInvoices.length === 0) {
+                        <tr>
+                            <td colspan="6" class="p-12 text-center text-secondary italic">
+                                Hiện tại không có hóa đơn nào chưa thanh toán trong ngày hôm nay.
+                            </td>
+                        </tr>
+                    } @else {
+                        @for (hd of todayInvoices; track hd.soHD) {
+                            <tr class="hover:bg-surface-container-low/50 transition-colors">
+                                <td class="p-4 font-bold text-primary">{{ hd.soHD }}</td>
+                                <td class="p-4">
+                                    <span class="px-2 py-0.5 bg-primary-container text-on-primary-container text-xs font-bold rounded">
+                                        Bàn {{ hd.soBan || 'Mang đi' }}
+                                    </span>
+                                </td>
+                                <td class="p-4 text-secondary text-body-sm">{{ hd.tgVao | date:'HH:mm:ss' }}</td>
+                                <td class="p-4 text-body-sm max-w-xs truncate italic text-secondary-variant">{{ hd.ghiChuHD || '—' }}</td>
+                                <td class="p-4">
+                                    <span class="px-2.5 py-1 bg-amber-100 text-amber-800 font-bold text-xs rounded-full flex items-center gap-1 w-fit">
+                                        <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
+                                        {{ hd.trangThaiHD }}
+                                    </span>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <button [routerLink]="['/admin/bep-pha-che', hd.soHD]" class="px-3 py-1.5 bg-primary text-on-primary text-xs font-bold rounded hover:brightness-110 shadow transition-all cursor-pointer flex items-center gap-1 mx-auto">
+                                        <span class="material-symbols-outlined text-[16px]">visibility</span> Xem & Pha
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</main>
