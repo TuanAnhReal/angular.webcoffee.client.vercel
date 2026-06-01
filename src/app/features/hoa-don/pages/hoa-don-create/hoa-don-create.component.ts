@@ -1,63 +1,99 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { forkJoin, Observable, of } from 'rxjs';
-import { switchMap } from 'rxjs/operators'; // 👉 BỔ SUNG: Toán tử chuyển đổi luồng async
+import { forkJoin, Observable, of, Subject } from 'rxjs';
+import { switchMap, debounceTime, distinctUntilChanged, takeUntil, catchError } from 'rxjs/operators';
 
+// Services
 import { HoaDonService } from '../../services/hoa-don.service';
 import { SanPhamService, SanPhamVm } from '../../../san-pham/services/san-pham.service';
 import { KhachHangService, KhachHangVm } from '../../../khach-hang/services/khach-hang.service';
 import { KhuVucBanService, KhuVucVm, BanVm } from '../../../khuvuc-ban/services/khu-vuc-ban.service';
 
+// Shared Components (Tạo ở phần trước)
+import { PromoBadgeComponent } from '../../../../shared/components/promo-badge/promo-badge.component';
+import { PromoPriceComponent } from '../../../../shared/components/promo-price/promo-price.component';
+
 export interface CartItem {
   product: SanPhamVm;
   quantity: number;
-  giamGia: number;
 }
 
 @Component({
   selector: 'app-hoa-don-create',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, PromoBadgeComponent, PromoPriceComponent],
   templateUrl: './hoa-don-create.component.html'
 })
-export class HoaDonCreateComponent implements OnInit {
+export class HoaDonCreateComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
+  private cdr = inject(ChangeDetectorRef);
   private hoaDonService = inject(HoaDonService);
   private sanPhamService = inject(SanPhamService);
   private khachHangService = inject(KhachHangService);
+  private khuVucBanService = inject(KhuVucBanService);
   private router = inject(Router);
-  private KhuVucBanService = inject(KhuVucBanService);
+
   invoiceForm!: FormGroup;
-  
-  // Dữ liệu master
+  private destroy$ = new Subject<void>();
+  private phoneSearch$ = new Subject<string>();
+
+  // Dữ liệu Master
+  categories: any[] = [];
   products: SanPhamVm[] = [];
   filteredProducts: SanPhamVm[] = [];
   customers: KhachHangVm[] = [];
   areas: KhuVucVm[] = [];
   filteredTables: BanVm[] = [];
-  
-  // Giỏ hàng & Trạng thái
+
+  // Trạng thái hệ thống
   cart: CartItem[] = [];
   isLoading = true;
   isSubmitting = false;
   activeCategory = 'Tất cả';
+  apiError = false;
 
-  customerNameDisplay = 'Khách vãng lai';
+  // Quản lý Khách Hàng
+  customerState: 'GUEST' | 'EXISTING' | 'NEW' = 'GUEST';
+  matchedCustomer: KhachHangVm | null = null;
+
+  // Info hiển thị
   currentAreaSurcharge = 0;
-  currentUser: any = null; // Chứa thông tin NV đang login
+  currentUser: any = null;
+
+  // Custom Toast State
+  toast = { show: false, message: '', type: 'success' as 'success' | 'error' | 'warning' };
 
   ngOnInit(): void {
     this.initForm();
-    this.loadMasterData();
     this.loadCurrentUser();
+    this.loadMasterData();
+    this.setupPhoneSearch();
+    this.setupOrderTypeListener();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // Lấy dữ liệu NV từ JWT / AuthService (Giả lập)
+  loadCurrentUser(): void {
+    const storedUser = localStorage.getItem('user_info');
+    if (storedUser) {
+      this.currentUser = JSON.parse(storedUser);
+    } else {
+      // Fallback
+      this.currentUser = { maNV: 'NV01', hoTen: 'Nguyễn Thu Ngân', role: 'Nhân viên Phục vụ', caLam: 'Ca Sáng' };
+    }
   }
 
   initForm(): void {
     this.invoiceForm = this.fb.group({
+      hinhThuc: ['TAI_QUAN'], // TAI_QUAN hoặc MANG_VE
       sdtKH: [''],
-      maKH: [''],
+      tenKHMoi: [''], // Dành cho khách mới
       soKV: ['', Validators.required],
       soBan: ['', Validators.required],
       giamGiaHD: [0, Validators.min(0)],
@@ -65,58 +101,113 @@ export class HoaDonCreateComponent implements OnInit {
     });
   }
 
-  loadCurrentUser(): void {
-    this.currentUser = {
-      maNV: 'NV01',
-      hoTen: 'Nguyễn Văn Admin',
-      role: 'Nhân viên phục vụ'
-    };
-  }
-
-  loadMasterData(): void {
-    forkJoin({
-      products: this.sanPhamService.getAll(),
-      customers: this.khachHangService.getAll(),
-      areas: this.KhuVucBanService.getAllNested()
-    }).subscribe({
-      next: ({ products, customers, areas }) => {
-        if (products.success) {
-          this.products = products.data.filter(p => p.trangThai === 'Đang bán');
-          this.filteredProducts = this.products;
-        }
-        if (customers.success) this.customers = customers.data;
-        if (areas.success) this.areas = areas.data;
-        
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Lỗi tải dữ liệu:', err);
-        this.isLoading = false;
+  // Bắt sự kiện đổi hình thức MANG VỀ / TẠI QUÁN
+  setupOrderTypeListener(): void {
+    this.invoiceForm.get('hinhThuc')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(type => {
+      if (type === 'MANG_VE') {
+        this.invoiceForm.patchValue({ soKV: '', soBan: 'Mang đi' });
+        this.invoiceForm.get('soKV')?.clearValidators();
+        this.invoiceForm.get('soBan')?.clearValidators();
+        this.currentAreaSurcharge = 0;
+        this.filteredTables = [];
+      } else {
+        this.invoiceForm.patchValue({ soKV: '', soBan: '' });
+        this.invoiceForm.get('soKV')?.setValidators(Validators.required);
+        this.invoiceForm.get('soBan')?.setValidators(Validators.required);
       }
+      this.invoiceForm.get('soKV')?.updateValueAndValidity();
+      this.invoiceForm.get('soBan')?.updateValueAndValidity();
     });
   }
 
-  // --- LOGIC TÌM KIẾM KHÁCH HÀNG LIVE TRÊN FORM ---
+  // Tải đồng loạt API - Fix triệt để bug Loading
+  loadMasterData(): void {
+    this.isLoading = true;
+    this.apiError = false;
+
+    forkJoin({
+      products: this.sanPhamService.getAll(),
+      categories: this.sanPhamService.getLoaiSps(), // API Load Danh mục động
+      customers: this.khachHangService.getAll(),
+      areas: this.khuVucBanService.getAllNested()
+    }).pipe(
+      takeUntil(this.destroy$),
+      catchError(error => {
+        this.apiError = true;
+        return of(null); // Bắt lỗi để không sập luồng
+      })
+    ).subscribe((results: any) => {
+      if (results) {
+        if (results.products?.success) {
+          this.products = results.products.data.filter((p: any) => p.trangThai === 'Đang bán');
+          this.filteredProducts = this.products;
+        }
+        if (results.categories?.success) this.categories = results.categories.data;
+        if (results.customers?.success) this.customers = results.customers.data;
+        if (results.areas?.success) this.areas = results.areas.data;
+      }
+
+      this.isLoading = false;
+      this.cdr.detectChanges(); // ÉP RENDER NGAY LẬP TỨC
+    });
+  }
+
+  // ================= QUẢN LÝ KHÁCH HÀNG (THÔNG MINH) =================
+  setupPhoneSearch(): void {
+    this.phoneSearch$.pipe(
+      debounceTime(400),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(phone => {
+      const cleanPhone = phone.replace(/[\s\-\.]/g, '');
+
+      if (!cleanPhone) {
+        this.customerState = 'GUEST';
+        this.matchedCustomer = null;
+        this.invoiceForm.patchValue({ tenKHMoi: '' });
+        return;
+      }
+
+      this.matchedCustomer = this.customers.find(c => c.sdtkh && c.sdtkh.replace(/[\s\-\.]/g, '') === cleanPhone) || null;
+
+      if (this.matchedCustomer) {
+        this.customerState = 'EXISTING';
+        this.invoiceForm.patchValue({ tenKHMoi: '' });
+      } else {
+        this.customerState = 'NEW';
+      }
+      this.cdr.detectChanges();
+    });
+  }
+
   onPhoneChange(event: Event): void {
-    const phone = (event.target as HTMLInputElement).value.trim();
-    const found = this.customers.find(c => c.sdtkh === phone);
-    
-    if (found) {
-      this.invoiceForm.patchValue({ maKH: found.maKH });
-      this.customerNameDisplay = found.tenKH;
+    const val = (event.target as HTMLInputElement).value;
+    this.phoneSearch$.next(val);
+  }
+
+  // ================= LOGIC MENU & GIỎ HÀNG =================
+  filterByCategory(maLoai: string): void {
+    this.activeCategory = maLoai;
+    if (maLoai === 'Tất cả') {
+      this.filteredProducts = this.products;
     } else {
-      this.invoiceForm.patchValue({ maKH: '' });
-      this.customerNameDisplay = 'Khách vãng lai';
+      this.filteredProducts = this.products.filter(p => p.maLoaiSp === maLoai);
     }
   }
 
-  // --- LOGIC KHU VỰC -> BÀN ---
+  onSearchProduct(event: Event): void {
+    const keyword = (event.target as HTMLInputElement).value.toLowerCase();
+    this.filteredProducts = this.products.filter(p =>
+      p.tenSp.toLowerCase().includes(keyword) &&
+      (this.activeCategory === 'Tất cả' || p.maLoaiSp === this.activeCategory)
+    );
+  }
+
   onAreaChange(event: Event): void {
     const soKV = (event.target as HTMLSelectElement).value;
     const area = this.areas.find(a => a.soKV === soKV);
-    
     if (area) {
-      this.filteredTables = area.bans.filter(b => b.trangThaiBan === 'Trống');
+      this.filteredTables = area.bans.filter((b: any) => b.trangThaiBan === 'Trống');
       this.currentAreaSurcharge = area.phuThuKV || 0;
       this.invoiceForm.patchValue({ soBan: '' });
     } else {
@@ -125,32 +216,10 @@ export class HoaDonCreateComponent implements OnInit {
     }
   }
 
-  // --- LOGIC BỘ LỌC SẢN PHẨM ---
-  filterByCategory(categoryName: string): void {
-    this.activeCategory = categoryName;
-    if (categoryName === 'Tất cả') {
-      this.filteredProducts = this.products;
-    } else {
-      this.filteredProducts = this.products.filter(p => p.tenLoaiSp && p.tenLoaiSp.includes(categoryName));
-    }
-  }
-
-  onSearchProduct(event: Event): void {
-    const keyword = (event.target as HTMLInputElement).value.toLowerCase();
-    this.filteredProducts = this.products.filter(p => 
-      p.tenSp.toLowerCase().includes(keyword) && 
-      (this.activeCategory === 'Tất cả' || (p.tenLoaiSp && p.tenLoaiSp.includes(this.activeCategory)))
-    );
-  }
-
-  // --- LOGIC GIỎ HÀNG ---
   addToCart(product: SanPhamVm): void {
-    const existingItem = this.cart.find(item => item.product.maSp === product.maSp);
-    if (existingItem) {
-      existingItem.quantity++;
-    } else {
-      this.cart.push({ product, quantity: 1, giamGia: 0 });
-    }
+    const existing = this.cart.find(item => item.product.maSp === product.maSp);
+    if (existing) existing.quantity++;
+    else this.cart.push({ product, quantity: 1 });
   }
 
   increaseQty(item: CartItem): void { item.quantity++; }
@@ -159,99 +228,121 @@ export class HoaDonCreateComponent implements OnInit {
     else this.removeFromCart(item);
   }
   removeFromCart(item: CartItem): void {
-    const index = this.cart.indexOf(item);
-    if (index > -1) this.cart.splice(index, 1);
+    this.cart = this.cart.filter(i => i !== item);
+  }
+  clearCart(): void {
+    if (confirm('Bạn có chắc muốn xóa toàn bộ giỏ hàng?')) {
+      this.cart = [];
+    }
   }
 
-  get subTotal(): number {
+  // ================= TOÁN HỌC KHUYẾN MÃI (CHUẨN BACKEND) =================
+  get tongTienHangGoc(): number {
     return this.cart.reduce((sum, item) => sum + (item.product.giaSp * item.quantity), 0);
   }
-  get vatAmount(): number { return this.subTotal * 0.1; }
+  get tongGiamGiaSP(): number {
+    return this.cart.reduce((sum, item) => {
+      const giam = item.product.giaSp - (item.product.giaSauKhuyenMai || item.product.giaSp);
+      return sum + (giam * item.quantity);
+    }, 0);
+  }
+  get tongThucThu(): number {
+    return this.tongTienHangGoc - this.tongGiamGiaSP;
+  }
+  get vatAmount(): number { return this.tongThucThu * 0.1; } // Giả sử 10%
   get totalAmount(): number {
-    const giamGia = this.invoiceForm.get('giamGiaHD')?.value || 0;
-    return this.subTotal + this.vatAmount + this.currentAreaSurcharge - Number(giamGia);
+    const voucher = this.invoiceForm.get('giamGiaHD')?.value || 0;
+    return this.tongThucThu + this.vatAmount + this.currentAreaSurcharge - Number(voucher);
   }
 
-  // ================= LUỒNG XỬ LÝ KHÁCH HÀNG TỰ ĐỘNG BẰNG FRONTEND RXJS =================
+  // ================= TOAST NOTIFICATION =================
+  showToast(message: string, type: 'success' | 'error' | 'warning'): void {
+    this.toast = { show: true, message, type };
+    setTimeout(() => this.toast.show = false, 3500);
+  }
+
+  // ================= SUBMIT TẠO HÓA ĐƠN =================
   onSubmit(): void {
     if (this.invoiceForm.invalid) {
       this.invoiceForm.markAllAsTouched();
-      alert('Vui lòng chọn Khu vực và Bàn đầy đủ trước khi chuyển nhà bếp!'); 
+      this.showToast('Vui lòng điền đầy đủ Khu vực và Bàn!', 'warning');
+      return;
+    }
+    if (this.cart.length === 0) {
+      this.showToast('Giỏ hàng đang trống!', 'warning');
       return;
     }
 
-    if (this.cart.length === 0) {
-      alert('Vui lòng chọn ít nhất 1 sản phẩm vào giỏ hàng!'); 
-      return;
-    }
+    if (!confirm('Bạn có chắc chắn muốn tạo hóa đơn này?')) return;
 
     this.isSubmitting = true;
     const formValues = this.invoiceForm.getRawValue();
-    const sdtNhap = formValues.sdtKH ? formValues.sdtKH.trim() : '';
+    const phone = formValues.sdtKH?.trim();
 
-    let luongXuLyKhachHang$: Observable<any>;
+    let processCustomer$: Observable<any>;
 
-    // TRƯỜNG HỢP 1: Có mã khách hàng cũ đã gán từ danh sách live
-    if (formValues.maKH) {
-      luongXuLyKhachHang$ = of({ success: true, data: { maKH: formValues.maKH } });
-    } 
-    // TRƯỜNG HỢP 2 & 3: Chưa có mã (SĐT mới tinh hoặc Input để rỗng) -> Ép FE gọi POST tạo khách hàng mới
-    else {
-      const payloadKhachMoi = {
-        tenKH: 'Khách vãng lai',
-        sdtkh: sdtNhap || null, // Nếu rỗng chuyển hẳn thành null theo quy chuẩn DB của bạn
+    // 1. Logic xử lý Khách hàng
+    if (this.customerState === 'EXISTING' && this.matchedCustomer) {
+      processCustomer$ = of({ success: true, data: { maKH: this.matchedCustomer.maKH } });
+    }
+    else if (this.customerState === 'NEW' && phone) {
+      const payloadKH = {
+        tenKH: formValues.tenKHMoi?.trim() || 'Khách mới',
+        sdtkh: phone,
         diemTichLuy: 0,
-        ghiChuKH: 'Tự động khởi tạo từ quầy thu ngân'
+        ghiChuKH: 'Tạo tự động từ POS'
       };
-
-      // Gọi hàm create có sẵn trong KhachHangService (Bắn đến POST /api/KhachHangs)
-      luongXuLyKhachHang$ = this.khachHangService.create(payloadKhachMoi);
+      processCustomer$ = this.khachHangService.create(payloadKH);
+    }
+    else {
+      // Khách vãng lai
+      const payloadGuest = { tenKH: 'Khách vãng lai', sdtkh: null, diemTichLuy: 0, ghiChuKH: 'Order không định danh' };
+      processCustomer$ = this.khachHangService.create(payloadGuest);
     }
 
-    // 🚀 CHUỖI PIPELINE KHÉP KÍN: Đảm bảo có maKH rồi mới bắn tiếp lệnh tạo hóa đơn
-    luongXuLyKhachHang$.pipe(
-      switchMap((resKhach) => {
-        // Trích xuất lấy mã khách hàng trả về từ cấu trúc ApiResponse của Server của bạn
-        const maKhachHangChuan = resKhach?.success ? resKhach.data.maKH : resKhach?.maKH;
-        
-        if (!maKhachHangChuan) {
-          throw new Error('Hệ thống không thể định danh hoặc khởi tạo mã Khách hàng mới.');
-        }
+    // 2. Chaining tạo Hóa đơn
+    processCustomer$.pipe(
+      switchMap(resKhach => {
+        const maKH = resKhach?.data?.maKH || resKhach?.maKH;
+        if (!maKH) throw new Error('Không lấy được mã Khách hàng');
 
-        // Cấu trúc Payload hóa đơn sạch hoàn chỉnh gửi đi
         const payloadHoaDon = {
-          maKH: maKhachHangChuan, 
-          soBan: formValues.soBan,
-          maNV_PV: this.currentUser.maNV, 
+          maKH: maKH,
+          soBan:
+            formValues.hinhThuc === 'MANG_VE'
+              ? null
+              : formValues.soBan,
+          maNV_PV: this.currentUser.maNV,
           maNV_PC: null,
           giamGiaHD: Number(formValues.giamGiaHD) || 0,
-          phuThu: this.currentAreaSurcharge, 
+          phuThu: this.currentAreaSurcharge,
           thueVAT: this.vatAmount,
-          trangThaiHD: "Chờ pha chế", 
+          trangThaiHD: "Chờ pha chế",
           ghiChuHD: formValues.ghiChuHD,
           chiTietHoaDons: this.cart.map(item => ({
             maSP: item.product.maSp,
             slsp: item.quantity,
-            donGia: item.product.giaSp,
-            giamGia: item.giamGia
+            donGia: item.product.giaSauKhuyenMai || item.product.giaSp,
+            giamGia: (item.product.giaSp - (item.product.giaSauKhuyenMai || item.product.giaSp))
           }))
-        };
 
+        }; console.log(payloadHoaDon);
         return this.hoaDonService.create(payloadHoaDon);
-      })
+      }),
+      takeUntil(this.destroy$)
     ).subscribe({
       next: (res) => {
         if (res.success) {
-          alert('Tạo hóa đơn thành công! Đã chuyển thông tin Order xuống quầy Pha chế.');
-          this.router.navigate(['/admin/hoa-don']);
+          this.showToast('Chuyển Order xuống pha chế thành công!', 'success');
+          setTimeout(() => this.router.navigate(['/admin/hoa-don']), 1000);
         } else {
-          alert(res.message || 'Lỗi lưu dữ liệu hóa đơn.');
+          this.showToast(res.message || 'Lỗi lưu hóa đơn', 'error');
           this.isSubmitting = false;
         }
       },
       error: (err) => {
-        console.error('Lỗi liên hoàn phân hệ bán hàng:', err);
-        alert(err.error?.message || 'Có lỗi xảy ra trong quá trình tự động định danh khách hàng hoặc kết nối Somee Hosting.');
+        console.error(err);
+        this.showToast('Lỗi kết nối máy chủ!', 'error');
         this.isSubmitting = false;
       }
     });

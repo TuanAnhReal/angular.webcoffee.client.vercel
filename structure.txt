@@ -1,0 +1,195 @@
+PROJECT STRUCTURE
+=================
+
+|-- public
+    |-- favicon.ico
+|-- src
+    |-- app
+        |-- core
+            |-- auth
+                |-- guards
+                    |-- auth.guard.ts
+                    |-- role.guard.ts
+                |-- interceptors
+                    |-- auth.interceptor.ts
+                    |-- error.interceptor.ts
+                |-- models
+                    |-- auth.model.ts
+                |-- services
+                    |-- auth.service.ts
+                    |-- token.service.ts
+            |-- models
+                |-- api-response.model.ts
+                |-- product.model.ts
+            |-- services
+                |-- api.service.ts
+                |-- coffee-data.service.ts
+        |-- features
+            |-- auth
+                |-- pages
+                    |-- account-profile
+                        |-- account-profile.component.html
+                        |-- account-profile.component.ts
+                    |-- change-password
+                        |-- change-password.component.html
+                        |-- change-password.component.ts
+                    |-- login
+                        |-- login.component.html
+                        |-- login.component.scss
+                        |-- login.component.ts
+                    |-- register
+                        |-- register.component.html
+                        |-- register.component.scss
+                        |-- register.component.ts
+            |-- bep-pha-che
+                |-- bep-dashboard
+                    |-- bep-dashboard.component.html
+                    |-- bep-dashboard.component.ts
+                |-- bep-detail
+                    |-- bep-detail.component.html
+                    |-- bep-detail.component.scss
+                    |-- bep-detail.component.ts
+            |-- dashboard
+                |-- pages
+                    |-- dashboard.component.html
+                    |-- dashboard.component.scss
+                    |-- dashboard.component.ts
+                |-- routes
+                    |-- dashboard.routes.ts
+                |-- service
+                    |-- dashboard.service.ts
+            |-- hoa-don
+                |-- pages
+                    |-- hoa-don-create
+                        |-- hoa-don-create.component.html
+                        |-- hoa-don-create.component.scss
+                        |-- hoa-don-create.component.ts
+                    |-- hoa-don-detail
+                        |-- hoa-don-detail.component.html
+                        |-- hoa-don-detail.component.scss
+                        |-- hoa-don-detail.component.ts
+                    |-- hoa-don-list
+                        |-- hoa-don-list.component.html
+                        |-- hoa-don-list.component.scss
+                        |-- hoa-don-list.component.ts
+                |-- routes
+                    |-- hoa-don.routes.ts
+                |-- services
+                    |-- hoa-don.service.ts
+            |-- khach-hang
+                |-- pages
+                    |-- khach-hang-form
+                        |-- khach-hang-form.component.html
+                        |-- khach-hang-form.component.ts
+                    |-- khach-hang-list
+                        |-- khach-hang-list.component.html
+                        |-- khach-hang-list.component.scss
+                        |-- khach-hang-list.component.ts
+                |-- routes
+                    |-- khach-hang.routes.ts
+                |-- services
+                    |-- khach-hang.service.ts
+            |-- khuvuc-ban
+                |-- pages
+                    |-- khu-vuc-ban-list.component.html
+                    |-- khu-vuc-ban-list.component.scss
+                    |-- khu-vuc-ban-list.component.ts
+                |-- routes
+                    |-- khu-vuc-ban.routes.ts
+                |-- services
+                    |-- khu-vuc-ban.service.ts
+            |-- nhan-vien
+                |-- pages
+                    |-- nhan-vien-calam
+                        |-- models
+                            |-- ca-lam.model.ts
+                        |-- pages
+                            |-- ca-lam.component.html
+                            |-- ca-lam.component.ts
+                    |-- nhan-vien-create
+                        |-- nhan-vien-create.component.html
+                        |-- nhan-vien-create.component.scss
+                        |-- nhan-vien-create.component.ts
+                    |-- nhan-vien-list
+                        |-- nhan-vien-list.component.html
+                        |-- nhan-vien-list.component.scss
+                        |-- nhan-vien-list.component.ts
+                    |-- nhan-vien-update
+                        |-- nhan-vien-update.component.html
+                        |-- nhan-vien-update.component.scss
+                        |-- nhan-vien-update.component.ts
+                |-- routes
+                    |-- nhan-vien.routes.ts
+                |-- services
+                    |-- nhan-vien.service.ts
+            |-- san-pham
+                |-- pages
+                    |-- loai-sp
+                        |-- loai-sp.component.html
+                        |-- loai-sp.component.ts
+                    |-- san-pham-create
+                        |-- san-pham-create.component.html
+                        |-- san-pham-create.component.scss
+                        |-- san-pham-create.component.ts
+                    |-- san-pham-list
+                        |-- san-pham-list.component.html
+                        |-- san-pham-list.component.scss
+                        |-- san-pham-list.component.ts
+                    |-- san-pham-update
+                        |-- san-pham-update.component.html
+                        |-- san-pham-update.component.scss
+                        |-- san-pham-update.component.ts
+                |-- routes
+                    |-- san-pham.routes.ts
+                |-- services
+                    |-- san-pham.service.ts
+            |-- thong-ke
+                |-- pages
+                    |-- doanh-thu
+                        |-- doanh-thu.component.html
+                        |-- doanh-thu.component.scss
+                        |-- doanh-thu.component.ts
+        |-- layouts
+            |-- admin-layout
+                |-- admin-layout.component.html
+                |-- admin-layout.component.scss
+                |-- admin-layout.component.ts
+        |-- shared
+            |-- avatar
+                |-- avatar.component.html
+                |-- avatar.component.scss
+                |-- avatar.component.ts
+            |-- components
+                |-- header
+                    |-- header.component.html
+                    |-- header.component.scss
+                    |-- header.component.ts
+                |-- sidebar
+                    |-- sidebar.component.html
+                    |-- sidebar.component.scss
+                    |-- sidebar.component.ts
+            |-- directives
+            |-- pipes
+        |-- app.component.html
+        |-- app.component.ts
+        |-- app.config.ts
+        |-- app.routes.ts
+    |-- environments
+        |-- environment.development.ts
+        |-- environment.ts
+    |-- index.html
+    |-- main.ts
+    |-- styles.scss
+|-- .editorconfig
+|-- .postcssrc.json
+|-- .prettierrc
+|-- angular.json
+|-- generate-structure.ps1
+|-- package-lock.json
+|-- package.json
+|-- README.md
+|-- structure.txt
+|-- tailwind.config.js
+|-- tsconfig.app.json
+|-- tsconfig.json
+|-- tsconfig.spec.json

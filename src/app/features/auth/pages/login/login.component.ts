@@ -56,10 +56,7 @@ export class LoginComponent {
               this.router.navigateByUrl(returnUrl);
               return;
             }
-
-            // 2. Nếu đăng nhập chủ động từ trang /login -> Điều hướng thông minh dựa vào Vai trò (Role)
             const vaiTro = this.authService.currentRole();
-            console.log('🔑 [Login] Tài khoản đăng nhập thành công. Vai trò nhận diện:', vaiTro);
 
             let urlDieuHuong = '/admin/profile'; // URL phòng hờ nếu role lạ
 
@@ -71,7 +68,6 @@ export class LoginComponent {
               urlDieuHuong = '/admin/bep-pha-che';
             }
 
-            // Thực thi đẩy user sang phân hệ phù hợp
             this.router.navigateByUrl(urlDieuHuong);
           });
         },

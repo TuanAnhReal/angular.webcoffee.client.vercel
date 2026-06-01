@@ -1,59 +1,128 @@
 <div class="h-full flex flex-col py-4 bg-white">
+  <!-- Logo -->
   <div class="px-6 mb-6">
     <h1 class="text-xl font-black text-primary tracking-tight">WebCoffee</h1>
   </div>
-  
+
   <nav class="flex-1 px-3 space-y-1 overflow-y-auto">
+
+    <!-- ── QUẢN LÝ ── -->
     @if (authService.hasRoles(['Quản trị viên'])) {
-      <a routerLink="/admin/dashboard" routerLinkActive="!bg-primary !text-on-primary" class="flex items-center px-4 py-2.5 transition-all text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
-        <span class="material-symbols-outlined mr-3 text-xl">dashboard</span>
-        <span>Dashboard</span>
-      </a>
+      <div class="mb-1">
+
+        <!-- Group Header -->
+        <button
+          (click)="toggleGroup('quan-ly')"
+          class="w-full flex items-center justify-between px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors group">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-slate-500 transition-colors">
+            Quản lý
+          </span>
+          <span class="material-symbols-outlined text-sm text-slate-300 group-hover:text-slate-400 transition-all duration-250"
+                [class.rotate-180]="isOpen('quan-ly')">
+            expand_more
+          </span>
+        </button>
+
+        <!-- Group Content -->
+        <div class="menu-group-content" [class.collapsed]="!isOpen('quan-ly')">
+          <div class="space-y-0.5 pt-0.5">
+            <a routerLink="/admin/dashboard" routerLinkActive="!bg-primary !text-on-primary"
+               class="flex items-center px-4 py-2.5 transition-all text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
+              <span class="material-symbols-outlined mr-3 text-xl">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a routerLink="/admin/thong-ke" routerLinkActive="!bg-primary !text-on-primary"
+               class="flex items-center px-4 py-2.5 transition-all text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
+              <span class="material-symbols-outlined mr-3 text-xl">analytics</span>
+              <span>Thống kê doanh thu</span>
+            </a>
+            <a routerLink="/admin/san-pham" routerLinkActive="!bg-primary !text-on-primary"
+               class="flex items-center px-4 py-2.5 transition-all text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
+              <span class="material-symbols-outlined mr-3 text-xl">inventory_2</span>
+              <span>Sản phẩm</span>
+            </a>
+            <a routerLink="/admin/nhan-vien" routerLinkActive="!bg-primary !text-on-primary"
+               class="flex items-center px-4 py-2.5 transition-all text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
+              <span class="material-symbols-outlined mr-3 text-xl">badge</span>
+              <span>Nhân viên</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
     }
-    @if (authService.hasRoles(['Quản trị viên'])) {
-      <a routerLink="/admin/thong-ke" routerLinkActive="!bg-primary !text-on-primary" class="flex items-center px-4 py-2.5 transition-all text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
-        <span class="material-symbols-outlined mr-3 text-xl">analytics</span>
-        <span>Thống kê doanh thu</span>
-      </a>
+
+    <!-- ── ORDER ── -->
+    @if (authService.hasRoles(['Phục vụ', 'Quản trị viên'])) {
+      <div class="mb-1">
+
+        <button
+          (click)="toggleGroup('order')"
+          class="w-full flex items-center justify-between px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors group">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-slate-500 transition-colors">
+            Order
+          </span>
+          <span class="material-symbols-outlined text-sm text-slate-300 group-hover:text-slate-400 transition-all duration-250"
+                [class.rotate-180]="isOpen('order')">
+            expand_more
+          </span>
+        </button>
+
+        <div class="menu-group-content" [class.collapsed]="!isOpen('order')">
+          <div class="space-y-0.5 pt-0.5">
+            <a routerLink="/admin/hoa-don" routerLinkActive="!bg-primary !text-on-primary"
+               class="flex items-center px-4 py-2.5 transition-all text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
+              <span class="material-symbols-outlined mr-3 text-xl">receipt_long</span>
+              <span>Hóa đơn & Gọi món</span>
+            </a>
+            <a routerLink="/admin/khu-vuc-ban" routerLinkActive="!bg-primary !text-on-primary"
+               class="flex items-center px-4 py-2.5 transition-all text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
+              <span class="material-symbols-outlined mr-3 text-xl">table_bar</span>
+              <span>Khu vực & Bàn</span>
+            </a>
+            <a routerLink="/admin/khach-hang" routerLinkActive="!bg-primary !text-on-primary"
+               class="flex items-center px-4 py-2.5 transition-all text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
+              <span class="material-symbols-outlined mr-3 text-xl">group</span>
+              <span>Khách hàng</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
     }
+
+    <!-- ── PHA CHẾ ── -->
     @if (authService.hasRoles(['Pha chế', 'Quản trị viên'])) {
-      <a routerLink="/admin/bep-pha-che" routerLinkActive="!bg-primary !text-on-primary" class="flex items-center px-4 py-2.5 transition-all text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
-        <span class="material-symbols-outlined mr-3 text-xl">coffee_maker</span>
-        <span>Pha chế</span>
-      </a>
+      <div class="mb-1">
+
+        <button
+          (click)="toggleGroup('pha-che')"
+          class="w-full flex items-center justify-between px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors group">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-slate-500 transition-colors">
+            Pha chế
+          </span>
+          <span class="material-symbols-outlined text-sm text-slate-300 group-hover:text-slate-400 transition-all duration-250"
+                [class.rotate-180]="isOpen('pha-che')">
+            expand_more
+          </span>
+        </button>
+
+        <div class="menu-group-content" [class.collapsed]="!isOpen('pha-che')">
+          <div class="space-y-0.5 pt-0.5">
+            <a routerLink="/admin/bep-pha-che" routerLinkActive="!bg-primary !text-on-primary"
+               class="flex items-center px-4 py-2.5 transition-all text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
+              <span class="material-symbols-outlined mr-3 text-xl">coffee_maker</span>
+              <span>Bếp pha chế</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
     }
-    @if (authService.hasRoles(['Phục vụ', 'Quản trị viên'])) {
-      <a routerLink="/admin/hoa-don" routerLinkActive="!bg-primary !text-on-primary" class="flex items-center px-4 py-2.5 transition-all text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
-        <span class="material-symbols-outlined mr-3 text-xl">receipt_long</span>
-        <span>Hóa đơn & Gọi món</span>
-      </a>
-    }
-    @if (authService.hasRoles(['Phục vụ', 'Quản trị viên'])) {
-      <a routerLink="/admin/khu-vuc-ban" routerLinkActive="!bg-primary !text-on-primary" class="flex items-center px-4 py-2.5 transition-all text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
-        <span class="material-symbols-outlined mr-3 text-xl">table_bar</span>
-        <span>Khu vực & Bàn</span>
-      </a>
-    }
-    @if (authService.hasRoles(['Phục vụ', 'Quản trị viên'])) {
-      <a routerLink="/admin/khach-hang" routerLinkActive="!bg-primary !text-on-primary" class="flex items-center px-4 py-2.5 transition-all text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
-        <span class="material-symbols-outlined mr-3 text-xl">group</span>
-        <span>Khách hàng</span>
-      </a>
-    }
-    @if (authService.hasRoles(['Quản trị viên'])) {
-      <a routerLink="/admin/san-pham" routerLinkActive="!bg-primary !text-on-primary" class="flex items-center px-4 py-2.5 transition-all text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
-        <span class="material-symbols-outlined mr-3 text-xl">inventory_2</span>
-        <span>Sản phẩm</span>
-      </a>
-    }
-    @if (authService.hasRoles(['Quản trị viên'])) {
-      <a routerLink="/admin/nhan-vien" routerLinkActive="!bg-primary !text-on-primary" class="flex items-center px-4 py-2.5 transition-all text-slate-600 hover:bg-slate-50 rounded-lg font-medium text-sm">
-        <span class="material-symbols-outlined mr-3 text-xl">badge</span>
-        <span>Nhân viên</span>
-      </a>
-    }
+
   </nav>
 
+  <!-- User info footer -->
   <div class="px-4 mt-auto pt-3 border-t border-slate-100">
     <div class="flex items-center gap-3 p-2 bg-slate-50 rounded-xl">
       <div class="w-8 h-8 rounded-lg bg-blue-50 text-primary flex items-center justify-center font-bold text-xs uppercase tracking-wider">

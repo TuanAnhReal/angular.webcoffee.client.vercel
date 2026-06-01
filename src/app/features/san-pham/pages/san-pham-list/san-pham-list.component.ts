@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SanPhamService, SanPhamVm } from '../../services/san-pham.service';
+import { PromoBadgeComponent } from '../../../../shared/components/promo-badge/promo-badge.component';
+import { PromoPriceComponent } from '../../../../shared/components/promo-price/promo-price.component';
+
 
 @Component({
   selector: 'app-san-pham-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PromoBadgeComponent, PromoPriceComponent],
   templateUrl: './san-pham-list.component.html'
 })
 export class SanPhamListComponent implements OnInit {

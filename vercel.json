@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "http://coffeeaka.somee.com/api/$1"
-    }
-  ]
-}

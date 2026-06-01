@@ -1,10 +1,15 @@
-.sidebar-active-indicator {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 24px;
-    background-color: theme('colors.primary');
-    border-radius: 0 4px 4px 0;
+.menu-group-content {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.25s ease, opacity 0.25s ease;
+  opacity: 1;
+}
+
+.menu-group-content.collapsed {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+
+.menu-group-content > div {
+  overflow: hidden;
 }

@@ -11,29 +11,38 @@ export interface ApiResponse<T> {
 }
 
 export interface CTHDVm {
-  soCTHD: string;
-  maSP: string;
-  slsp: number;
-  donGia: number;
-  giamGia: number;
-  thanhTien: number;
+    soCTHD: string;
+    maSP: string;
+    tenSP: string;
+    slsp: number;
+    giaGoc: number;
+    donGia: number; // Giá sau KM tại thời điểm bán
+    giamGia: number; // Tiền giảm trên 1 SP
+    thanhTien: number;
+    
+    // Snapshot thông tin khuyến mãi
+    coKhuyenMai: boolean;
+    maKhuyenMai?: string | null;
+    tenKhuyenMai?: string | null;
+    loaiKhuyenMai?: string | null;
+    giaTriKhuyenMai?: number | null;
 }
 
 export interface HoaDonVm {
-  soHD: string;
-  maKH: string;
-  soBan: string;
-  maNV_PV: string;
-  maNV_PC: string;
-  tgVao: string;
-  tgRa?: string;
-  giamGiaHD: number;
-  phuThu: number;
-  thueVAT: number;
-  tongTien: number;
-  trangThaiHD: string;
-  ghiChuHD: string;
-  chiTietHoaDons: CTHDVm[];
+    soHD: string;
+    maKH: string;
+    soBan: string;
+    maNV_PV: string;
+    maNV_PC?: string | null;
+    tgVao: string;
+    tgRa?: string | null;
+    giamGiaHD: number;
+    phuThu: number;
+    thueVAT: number;
+    tongTien: number; // Tổng thanh toán cuối cùng
+    trangThaiHD: string;
+    ghiChuHD: string;
+    chiTietHoaDons: CTHDVm[];
 }
 
 @Injectable({

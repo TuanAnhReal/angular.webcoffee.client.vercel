@@ -21,15 +21,22 @@ export interface LoaiSPVm {
 export interface SanPhamVm {
     maSp: string;
     tenSp: string;
-    giaSp: number;
-    giaVon?: number;
+    giaVon: number;
+    giaSp: number; // Giá gốc
     dvt?: string;
+    kichThuoc?: string;
     moTa?: string;
     trangThai?: string;
     maLoaiSp?: string;
     tenLoaiSp: string;
     hinhAnh?: string;
-    kichThuoc?: string;
+    
+    coKhuyenMai: boolean;
+    maKhuyenMai?: string | null;
+    tenKhuyenMai?: string | null;
+    loaiKhuyenMai?: string | null; // 'PERCENT' | 'AMOUNT'
+    giaTriKhuyenMai?: number | null;
+    giaSauKhuyenMai: number; // Giá bán thực tế
 }
 
 @Injectable({

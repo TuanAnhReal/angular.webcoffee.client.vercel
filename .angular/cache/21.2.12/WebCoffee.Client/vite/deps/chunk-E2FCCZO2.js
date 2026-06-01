@@ -5,7 +5,7 @@ import {
   ViewEncapsulation,
   setClassMetadata,
   ɵɵdefineComponent
-} from "./chunk-MX7DTPND.js";
+} from "./chunk-7ELNMWCW.js";
 
 // node_modules/@angular/cdk/fesm2022/private.mjs
 var _VisuallyHiddenLoader = class __VisuallyHiddenLoader {
@@ -68,4 +68,4 @@ export {
   trustedHTMLFromString,
   _setInnerHtml
 };
-//# sourceMappingURL=chunk-3QHD3O7Z.js.map
+//# sourceMappingURL=chunk-E2FCCZO2.js.map
