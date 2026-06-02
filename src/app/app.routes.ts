@@ -28,11 +28,16 @@ export const routes: Routes = [
         canActivate: [roleGuard(['Quản trị viên'])],
         loadChildren: () => import('./features/dashboard/routes/dashboard.routes').then(r => r.DASHBOARD_ROUTES)
       },
-
+      {
+        path: 'khuyen-mai',
+        canActivate: [roleGuard(['Quản trị viên'])],
+        loadChildren: () =>
+          import('./features/khuyen-mai/routes/khuyen-mai.routes').then(r => r.KHUYEN_MAI_ROUTES)
+      },
       {
         path: 'thong-ke',
         canActivate: [roleGuard(['Quản trị viên'])],
-        loadComponent: () => 
+        loadComponent: () =>
           import('./features/thong-ke/pages/doanh-thu/doanh-thu.component')
             .then(c => c.DoanhThuComponent)
       },

@@ -1,0 +1,162 @@
+<div class="max-w-[1600px] mx-auto pb-8 text-slate-700 animate-in fade-in duration-300 h-[calc(100vh-100px)] flex flex-col">
+    
+    <div class="flex items-center gap-4 mb-5 border-b border-slate-100 pb-4 shrink-0">
+        <button routerLink="/admin/khuyen-mai" class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-slate-200 shadow-sm hover:bg-slate-50 transition-colors cursor-pointer active:scale-95">
+            <span class="material-symbols-outlined text-slate-600">arrow_back</span>
+        </button>
+        <div>
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Tạo Chương Trình Khuyến Mãi</h2>
+            <p class="text-xs text-slate-500 mt-1 font-medium">Thiết lập điều kiện giảm giá và chọn sản phẩm áp dụng</p>
+        </div>
+    </div>
+
+    @if (isLoading) {
+        <div class="flex flex-col justify-center items-center h-full gap-3">
+            <span class="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
+            <p class="text-sm font-semibold text-slate-500">Đang khởi tạo dữ liệu...</p>
+        </div>
+    } @else {
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0">
+            
+            <form [formGroup]="promoForm" class="lg:col-span-5 flex flex-col h-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-lg">tune</span> Thông tin chương trình
+                    </h3>
+                </div>
+                
+                <div class="p-5 overflow-y-auto custom-scrollbar flex-1 space-y-5">
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1.5">Tên chương trình *</label>
+                        <input formControlName="tenKM" type="text" placeholder="VD: Siêu Sale Chào Hè..." 
+                               class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-primary focus:bg-white transition-all">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1.5">Loại giảm giá *</label>
+                            <select formControlName="loaiKM" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold outline-none focus:border-primary focus:bg-white cursor-pointer transition-all">
+                                <option value="PERCENT">Giảm Phần trăm (%)</option>
+                                <option value="AMOUNT">Giảm Tiền mặt (VNĐ)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1.5">Giá trị giảm *</label>
+                            <div class="relative">
+                                <input formControlName="giaTriKM" type="number" min="0" placeholder="0" 
+                                       class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold text-primary outline-none focus:border-primary focus:bg-white transition-all text-right pr-10">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm pointer-events-none">
+                                    {{ promoForm.get('loaiKM')?.value === 'PERCENT' ? '%' : 'đ' }}
+                                </span>
+                            </div>
+                            @if (promoForm.get('loaiKM')?.value === 'PERCENT') {
+                                <p class="text-[10px] text-slate-400 mt-1 italic text-right">Nhập từ 1 đến 100</p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1.5">Bắt đầu từ *</label>
+                            <input formControlName="ngayBD" type="datetime-local" 
+                                   class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-primary focus:bg-white cursor-pointer">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1.5">Kết thúc vào *</label>
+                            <input formControlName="ngayKT" type="datetime-local" 
+                                   class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-primary focus:bg-white cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1.5">Mô tả / Ghi chú</label>
+                        <textarea formControlName="ghiChuKM" rows="3" placeholder="Điều kiện áp dụng nội bộ..." 
+                                  class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-primary focus:bg-white transition-all resize-none"></textarea>
+                    </div>
+                </div>
+
+                <div class="p-5 bg-slate-800 text-white mt-auto rounded-t-3xl">
+                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">Đang thiết lập</p>
+                    <div class="flex items-center justify-between">
+                        <div class="font-black text-2xl text-emerald-400">
+                            {{ promoForm.get('loaiKM')?.value === 'PERCENT' ? 'Giảm ' + (promoForm.get('giaTriKM')?.value || 0) + '%' : 'Giảm ' + (promoForm.get('giaTriKM')?.value || 0 | number:'1.0-0') + 'đ' }}
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-bold bg-white/20 px-2 py-1 rounded text-white">
+                                Áp dụng: {{ selectedProducts.size }} Món
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+
+            <div class="lg:col-span-7 flex flex-col h-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                
+                <div class="px-5 py-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/50 shrink-0">
+                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2 whitespace-nowrap">
+                        <span class="material-symbols-outlined text-primary text-lg">inventory_2</span> Sản phẩm áp dụng
+                    </h3>
+                    
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <div class="relative flex-1">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                            <input (input)="onSearchProduct($event)" type="text" placeholder="Tìm tên món..." 
+                                   class="w-full bg-white pl-9 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:border-primary focus:ring-1 transition-all" />
+                        </div>
+                        <button (click)="selectAllAvailable()" class="px-3 py-1.5 bg-slate-200 text-slate-700 hover:bg-slate-300 rounded-lg text-[11px] font-bold uppercase transition-colors whitespace-nowrap active:scale-95">
+                            Chọn tất cả hợp lệ
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50/30">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        @for (p of filteredProducts; track p.maSp) {
+                            <div (click)="toggleProduct(p.maSp, p.coKhuyenMai)" 
+                                 class="relative flex items-center p-3 rounded-xl border-2 transition-all select-none"
+                                 [ngClass]="{
+                                    'border-primary bg-blue-50/30 shadow-sm cursor-pointer': selectedProducts.has(p.maSp),
+                                    'border-slate-100 bg-white hover:border-slate-300 cursor-pointer': !selectedProducts.has(p.maSp) && !p.coKhuyenMai,
+                                    'border-slate-100 bg-slate-50 opacity-60 cursor-not-allowed': p.coKhuyenMai
+                                 }">
+                                
+                                <div class="w-5 h-5 rounded border-2 flex items-center justify-center mr-3 shrink-0 transition-colors"
+                                     [ngClass]="selectedProducts.has(p.maSp) ? 'bg-primary border-primary text-white' : 'border-slate-300 bg-white'">
+                                    @if (selectedProducts.has(p.maSp)) {
+                                        <span class="material-symbols-outlined text-[14px] font-black">check</span>
+                                    }
+                                </div>
+
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-bold text-sm text-slate-800 truncate">{{ p.tenSp }}</p>
+                                    <p class="text-[11px] text-slate-500 font-semibold">{{ p.giaSp | number:'1.0-0' }}đ</p>
+                                    
+                                    @if (p.coKhuyenMai) {
+                                        <div class="mt-1.5 flex items-center gap-1 bg-amber-100/80 text-amber-700 px-2 py-0.5 rounded w-max">
+                                            <span class="material-symbols-outlined text-[12px]">warning</span>
+                                            <span class="text-[9px] font-bold uppercase tracking-wider">Đang thuộc: {{ p.tenKhuyenMai }}</span>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="p-4 bg-white border-t border-slate-100 flex justify-end shrink-0">
+                    <button (click)="onSubmit()" [disabled]="isSubmitting" 
+                            class="flex items-center gap-2 h-11 px-8 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
+                        @if (isSubmitting) {
+                            <span class="material-symbols-outlined animate-spin text-[20px]">sync</span> ĐANG XỬ LÝ...
+                        } @else {
+                            <span class="material-symbols-outlined font-variation-fill text-[20px]">save</span> XÁC NHẬN TẠO
+                        }
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    }
+</div>

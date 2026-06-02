@@ -6,6 +6,8 @@ import { forkJoin } from 'rxjs';
 import { HoaDonService } from '../../services/hoa-don.service';
 import { KhachHangService } from '../../../khach-hang/services/khach-hang.service';
 import { NhanVienService } from '../../../nhan-vien/services/nhan-vien.service';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-hoa-don-detail',
@@ -125,7 +127,43 @@ export class HoaDonDetailComponent implements OnInit {
     }
   }
 
-  printInvoice(): void {
-    window.print();
+async exportPdf(): Promise<void> {
+
+  const element = document.getElementById('invoice-print');
+
+  if (!element) {
+    console.error('Không tìm thấy invoice-print');
+    return;
   }
+
+  element.style.visibility = 'visible';
+
+  const canvas = await html2canvas(element, {
+    scale: 2
+  });
+
+    element.style.visibility = 'hidden';
+
+  const imgData = canvas.toDataURL('image/png');
+
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
+
+  const pdfWidth = 190;
+  const pdfHeight = canvas.height * pdfWidth / canvas.width;
+
+  pdf.addImage(
+    imgData,
+    'PNG',
+    10,
+    10,
+    pdfWidth,
+    pdfHeight
+  );
+
+  pdf.save(`HoaDon-${this.invoice?.soHD}.pdf`);
+}
 }

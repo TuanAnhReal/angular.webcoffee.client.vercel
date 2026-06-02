@@ -287,7 +287,7 @@
                     }
 
                     @if (invoice.trangThaiHD === 'Đã thanh toán') {
-                        <button (click)="printInvoice()" class="flex items-center justify-center gap-2 h-12 px-10 bg-blue-600 text-white font-black rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/30 cursor-pointer active:scale-95 text-lg tracking-wide w-full md:w-auto">
+                        <button (click)="exportPdf()" class="flex items-center justify-center gap-2 h-12 px-10 bg-blue-600 text-white font-black rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/30 cursor-pointer active:scale-95 text-lg tracking-wide w-full md:w-auto">
                             <span class="material-symbols-outlined font-variation-fill">print</span> IN HÓA ĐƠN
                         </button>
                     }
@@ -310,12 +310,11 @@
 
 
 @if (invoice) {
-    <div class="hidden print:block w-[80mm] mx-auto bg-white text-black font-mono text-[12px] leading-tight p-2 pt-0">
+    <div id="invoice-print" class="invoice-pdf w-[80mm] mx-auto bg-white"
+  style="position:fixed;left:-10000px;top:0;">
         
         <div class="text-center mb-2">
             <h2 class="text-lg font-black uppercase tracking-widest">WEB COFFEE</h2>
-            <p class="mt-1">123 Đường Tôn Đức Thắng, Quận 1, TP.HCM</p>
-            <p>Hotline: 0909 123 456</p>
         </div>
         
         <div class="border-b border-dashed border-black my-2"></div>
@@ -393,7 +392,6 @@
         <div class="text-center text-[11px] mt-4 space-y-1 pb-4">
             <p>Thu ngân: {{ employeePV }}</p>
             <p class="font-bold italic mt-2">Xin cảm ơn quý khách và hẹn gặp lại!</p>
-            <p class="text-[9px]">Powered by Web Coffee POS</p>
         </div>
 
     </div>

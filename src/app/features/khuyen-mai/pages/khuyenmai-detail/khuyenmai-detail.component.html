@@ -1,0 +1,91 @@
+<div class="max-w-[1200px] mx-auto pb-8 text-slate-700 animate-in fade-in duration-300">
+    @if (isLoading) {
+        <div class="flex justify-center items-center h-[50vh]"><span class="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span></div>
+    } @else if (promoData) {
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <button routerLink="/admin/khuyen-mai" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors">
+                        <span class="material-symbols-outlined text-slate-600">arrow_back</span>
+                    </button>
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <h2 class="text-3xl font-black text-slate-900 tracking-tight">{{ promoData.tenKM }}</h2>
+                            <app-promo-status-badge [ngayBD]="promoData.ngayBD" [ngayKT]="promoData.ngayKT"></app-promo-status-badge>
+                        </div>
+                        <p class="text-sm font-mono text-slate-400 mt-1 font-bold">#{{ promoData.maKM }}</p>
+                    </div>
+                </div>
+                <button [routerLink]="['/admin/khuyen-mai/update', maKM]" class="flex items-center gap-2 h-10 px-6 bg-amber-50 text-amber-600 font-bold rounded-lg hover:bg-amber-100 transition-colors border border-amber-200 shadow-sm">
+                    <span class="material-symbols-outlined text-[18px]">edit</span> CHỈNH SỬA
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-100">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Loại giảm giá</p>
+                    <p class="font-black text-primary text-lg mt-0.5">
+                        {{ promoData.loaiKM === 'PERCENT' ? 'Giảm ' + promoData.giaTriKM + '%' : 'Giảm ' + (promoData.giaTriKM | number:'1.0-0') + 'đ' }}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Sản phẩm áp dụng</p>
+                    <p class="font-black text-slate-800 text-lg mt-0.5">{{ assignedProducts.length }} Món</p>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ngày bắt đầu</p>
+                    <p class="font-bold text-slate-700 text-base mt-0.5">{{ promoData.ngayBD | date:'HH:mm dd/MM/yyyy' }}</p>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ngày kết thúc</p>
+                    <p class="font-bold text-rose-600 text-base mt-0.5">{{ promoData.ngayKT | date:'HH:mm dd/MM/yyyy' }}</p>
+                </div>
+            </div>
+            @if (promoData.ghiChuKM) {
+                <div class="mt-4 bg-slate-50 p-3 rounded-lg border border-slate-100 text-sm font-medium text-slate-500 italic">
+                    <span class="material-symbols-outlined text-[14px] align-middle mr-1">info</span> {{ promoData.ghiChuKM }}
+                </div>
+            }
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="px-6 py-4 bg-slate-50/50 border-b border-slate-100">
+                <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider">Sản phẩm được áp dụng</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left whitespace-nowrap">
+                    <thead class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                        <tr>
+                            <th class="px-6 py-3 w-12 text-center">STT</th>
+                            <th class="px-6 py-3">Sản phẩm</th>
+                            <th class="px-6 py-3 text-right">Giá gốc</th>
+                            <th class="px-6 py-3 text-right">Mức giảm</th>
+                            <th class="px-6 py-3 text-right text-primary">Giá khuyến mãi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-sm">
+                        @for (p of assignedProducts; track p.maSP; let i = $index) {
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="px-6 py-4 text-center text-xs font-bold text-slate-400">{{ i + 1 }}</td>
+                                <td class="px-6 py-4">
+                                    <p class="font-bold text-slate-800 text-[13px]">{{ p.tenSP }}</p>
+                                    <p class="text-[10px] text-slate-400 font-mono">{{ p.maSP }}</p>
+                                </td>
+                                <td class="px-6 py-4 text-right font-medium text-slate-400 line-through">{{ p.donGia | number:'1.0-0' }}đ</td>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="bg-rose-100 text-rose-700 text-[10px] font-black px-2 py-0.5 rounded uppercase">
+                                        -{{ (p.donGia - p.giaSauKhuyenMai) | number:'1.0-0' }}đ
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right font-black text-primary text-base">{{ p.giaSauKhuyenMai | number:'1.0-0' }}đ</td>
+                            </tr>
+                        }
+                        @if (assignedProducts.length === 0) {
+                            <tr><td colspan="5" class="text-center py-10 text-slate-400">Không có sản phẩm nào được áp dụng.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
